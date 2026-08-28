@@ -66,4 +66,45 @@ export function queryString(filters = {}) {
   return text ? `?${text}` : ''
 }
 
+export function uniqueStrings(values = []) {
+  return [...new Set(values.filter((value) => value != null && value !== ''))]
+}
+
+export function uniqueEmployees(employees = []) {
+  const seen = new Set()
+  return employees.filter((employee) => {
+    if (!employee?.id || seen.has(employee.id)) return false
+    seen.add(employee.id)
+    return true
+  })
+}
+
+export function uniqueDivisions(divisions = []) {
+  const seen = new Set()
+  return divisions.filter((item) => {
+    const key = item?.key ?? item
+    if (key == null || key === '' || seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
+export function looksLikePhone(value) {
+  const text = String(value || '').trim()
+  if (!text) return false
+  const digits = [...text].filter((ch) => /\d/.test(ch)).length
+  if (digits < 7) return false
+  return [...text].every((ch) => /\d/.test(ch) || '+()- .'.includes(ch))
+}
+
+export function customerLabel(client) {
+  const full = [client?.first_name, client?.last_name].filter(Boolean).join(' ').trim()
+  if (full) return full
+  const company = String(client?.company_name || client?.company || '').trim()
+  if (company) return company
+  const name = String(client?.name || '').trim()
+  if (name && !looksLikePhone(name)) return name
+  return 'Unnamed customer'
+}
+
 export { API }

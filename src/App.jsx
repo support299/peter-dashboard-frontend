@@ -1,7 +1,30 @@
 import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import { AreaChart, ColumnChart, Donut, INTERNAL_COLORS, JOBBER_COLORS, RankBars, SegmentedBar } from './charts'
-import { API, api, money, number, queryString, readJson, relative, when } from './lib'
+import { API, api, customerLabel, money, number, queryString, readJson, relative, uniqueDivisions, uniqueEmployees, uniqueStrings, when } from './lib'
+
+const JOBBER_LIST_FILTERS = {
+  visits: {
+    search: true,
+    dates: true,
+    division: true,
+    employee: true,
+    teamLeader: true,
+    serviceType: true,
+    city: true,
+  },
+  jobs: {
+    search: true,
+    dates: true,
+    division: true,
+    employee: true,
+    serviceType: true,
+    city: true,
+    source: true,
+  },
+  clients: { search: true },
+  invoices: { search: true, dates: true },
+}
 
 const JOBBER_NAV = [
   { id: 'overview', label: 'Overview', icon: 'overview' },
@@ -24,7 +47,6 @@ const INTERNAL_NAV = [
   { id: 'leave', label: 'Leave', icon: 'leave' },
   { id: 'bonuses', label: 'Bonuses', icon: 'bonuses' },
   { id: 'lockins', label: 'Lock-ins', icon: 'lockins' },
-  { id: 'visits', label: 'Visits', icon: 'visits' },
 ]
 
 const PRICING_NAV = [
@@ -533,6 +555,16 @@ function App() {
   function switchSource(next) {
     if (next === source) return
     setSource(next)
+    setView('overview')
+    setFilters({})
+    setSearch('')
+    setQuery('')
+    setList(null)
+    setBoard(null)
+    setDetail(null)
+    setTrail([])
+    setFilterOptions(null)
+    setDash(null)
   }
 
   function openView(next, nextFilters = {}, { remember } = { remember: true }) {
@@ -574,6 +606,17 @@ function App() {
       const next = { ...prev }
       if (value === '' || value == null) delete next[key]
       else next[key] = value
+      return next
+    })
+  }
+
+  function patchFilters(updates) {
+    setFilters((prev) => {
+      const next = { ...prev }
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === '' || value == null) delete next[key]
+        else next[key] = value
+      })
       return next
     })
   }
@@ -688,7 +731,7 @@ function App() {
                 </p>
               </div>
               <div className="hero-tools">
-                {filterOptions?.divisions?.length ? (
+                {filterOptions?.divisions?.length && (view === 'overview' || JOBBER_BOARD_VIEWS.has(view)) ? (
                   <label className="division-filter">
                     <span>Division</span>
                     <select
@@ -696,7 +739,7 @@ function App() {
                       onChange={(e) => setFilter('division', e.target.value)}
                     >
                       <option value="">All divisions</option>
-                      {filterOptions.divisions.map((item) => (
+                      {uniqueDivisions(filterOptions.divisions).map((item) => (
                         <option key={item.key || item} value={item.key || item}>
                           {item.label || item}
                         </option>
@@ -771,6 +814,7 @@ function App() {
                   setSearch={setSearch}
                   filters={filters}
                   setFilter={setFilter}
+                  patchFilters={patchFilters}
                   filterOptions={filterOptions}
                   onPage={(page) => loadList(view, filters, page)}
                   onOpen={openDetail}
@@ -905,7 +949,7 @@ function Overview({ dash, onKpi, onDetail }) {
                 <RevenueIcon />
               </div>
               <div>
-                <span className="jobber-eyebrow">Invoice revenue</span>
+                <span className="jobber-eyebrow">Invoice revenue (ex tax)</span>
                 <AnimatedMetric kpi={hero} delay={40} />
                 <p>{JOBBER_KPI_META.revenue.hint}</p>
               </div>
@@ -1083,7 +1127,7 @@ function Overview({ dash, onKpi, onDetail }) {
 }
 
 const JOBBER_KPI_META = {
-  revenue: { tone: 'teal', hint: 'All invoice totals' },
+  revenue: { tone: 'teal', hint: 'Invoice subtotals (ex tax)' },
   outstanding: { tone: 'amber', hint: 'Still unpaid' },
   clients: { tone: 'blue', hint: 'Active customers' },
   jobs: { tone: 'slate', hint: 'Open + closed' },
@@ -1978,7 +2022,7 @@ function FilterBar({ view, filters, setFilter, filterOptions, search, setSearch 
         <>
           <select value={filters.status || ''} onChange={(e) => setFilter('status', e.target.value)}>
             <option value="">All statuses</option>
-            {(employees.statuses || []).map((value) => (
+            {uniqueStrings(employees.statuses || []).map((value) => (
               <option key={value} value={value}>
                 {value}
               </option>
@@ -1986,7 +2030,7 @@ function FilterBar({ view, filters, setFilter, filterOptions, search, setSearch 
           </select>
           <select value={filters.role || ''} onChange={(e) => setFilter('role', e.target.value)}>
             <option value="">All roles</option>
-            {(employees.roles || []).map((value) => (
+            {uniqueStrings(employees.roles || []).map((value) => (
               <option key={value} value={value}>
                 {value}
               </option>
@@ -1994,7 +2038,7 @@ function FilterBar({ view, filters, setFilter, filterOptions, search, setSearch 
           </select>
           <select value={filters.position || ''} onChange={(e) => setFilter('position', e.target.value)}>
             <option value="">All positions</option>
-            {(employees.positions || []).map((value) => (
+            {uniqueStrings(employees.positions || []).map((value) => (
               <option key={value} value={value}>
                 {value}
               </option>
@@ -2006,7 +2050,7 @@ function FilterBar({ view, filters, setFilter, filterOptions, search, setSearch 
         <>
           <select value={filters.status || ''} onChange={(e) => setFilter('status', e.target.value)}>
             <option value="">All statuses</option>
-            {(leave.statuses || []).map((value) => (
+            {uniqueStrings(leave.statuses || []).map((value) => (
               <option key={value} value={value}>
                 {value}
               </option>
@@ -2014,7 +2058,7 @@ function FilterBar({ view, filters, setFilter, filterOptions, search, setSearch 
           </select>
           <select value={filters.leave_type || ''} onChange={(e) => setFilter('leave_type', e.target.value)}>
             <option value="">All types</option>
-            {(leave.types || []).map((value) => (
+            {uniqueStrings(leave.types || []).map((value) => (
               <option key={value} value={value}>
                 {value}
               </option>
@@ -2028,7 +2072,7 @@ function FilterBar({ view, filters, setFilter, filterOptions, search, setSearch 
         <>
           <select value={filters.status || ''} onChange={(e) => setFilter('status', e.target.value)}>
             <option value="">All statuses</option>
-            {(bonuses.statuses || []).map((value) => (
+            {uniqueStrings(bonuses.statuses || []).map((value) => (
               <option key={value} value={value}>
                 {value}
               </option>
@@ -2036,7 +2080,7 @@ function FilterBar({ view, filters, setFilter, filterOptions, search, setSearch 
           </select>
           <select value={filters.bonus_type || ''} onChange={(e) => setFilter('bonus_type', e.target.value)}>
             <option value="">All types</option>
-            {(bonuses.types || []).map((value) => (
+            {uniqueStrings(bonuses.types || []).map((value) => (
               <option key={value} value={value}>
                 {value}
               </option>
@@ -2053,7 +2097,7 @@ function FilterBar({ view, filters, setFilter, filterOptions, search, setSearch 
         <>
           <select value={filters.status || ''} onChange={(e) => setFilter('status', e.target.value)}>
             <option value="">All statuses</option>
-            {(lockins.statuses || []).map((value) => (
+            {uniqueStrings(lockins.statuses || []).map((value) => (
               <option key={value} value={value}>
                 {value}
               </option>
@@ -2070,7 +2114,7 @@ function FilterBar({ view, filters, setFilter, filterOptions, search, setSearch 
         <>
           <select value={filters.job_type || ''} onChange={(e) => setFilter('job_type', e.target.value)}>
             <option value="">All job types</option>
-            {(visits.job_types || []).map((value) => (
+            {uniqueStrings(visits.job_types || []).map((value) => (
               <option key={value} value={value}>
                 {value}
               </option>
@@ -2084,7 +2128,7 @@ function FilterBar({ view, filters, setFilter, filterOptions, search, setSearch 
         <>
           <select value={filters.status || ''} onChange={(e) => setFilter('status', e.target.value)}>
             <option value="">All statuses</option>
-            {(filterOptions?.submissions?.statuses || []).map((value) => (
+            {uniqueStrings(filterOptions?.submissions?.statuses || []).map((value) => (
               <option key={value} value={value}>
                 {value}
               </option>
@@ -2092,7 +2136,7 @@ function FilterBar({ view, filters, setFilter, filterOptions, search, setSearch 
           </select>
           <select value={filters.property_type || ''} onChange={(e) => setFilter('property_type', e.target.value)}>
             <option value="">All property types</option>
-            {(filterOptions?.submissions?.property_types || []).map((value) => (
+            {uniqueStrings(filterOptions?.submissions?.property_types || []).map((value) => (
               <option key={value} value={value}>
                 {value}
               </option>
@@ -2100,7 +2144,7 @@ function FilterBar({ view, filters, setFilter, filterOptions, search, setSearch 
           </select>
           <select value={filters.location || ''} onChange={(e) => setFilter('location', e.target.value)}>
             <option value="">All locations</option>
-            {(filterOptions?.submissions?.locations || []).map((value) => (
+            {uniqueStrings(filterOptions?.submissions?.locations || []).map((value) => (
               <option key={value} value={value}>
                 {value}
               </option>
@@ -2116,7 +2160,7 @@ function FilterBar({ view, filters, setFilter, filterOptions, search, setSearch 
       {view === 'packages' ? (
         <select value={filters.service || ''} onChange={(e) => setFilter('service', e.target.value)}>
           <option value="">All services</option>
-          {(filterOptions?.packages?.services || []).map((value) => (
+          {uniqueStrings(filterOptions?.packages?.services || []).map((value) => (
             <option key={value} value={value}>
               {value}
             </option>
@@ -2169,86 +2213,110 @@ function InternalListView({ view, list, search, setSearch, filters, setFilter, f
   )
 }
 
-function JobberFilterBar({ filters, setFilter, filterOptions, search, setSearch, view }) {
-  const employees = filterOptions?.employees || []
-  const divisions = filterOptions?.divisions || []
-  const serviceTypes = filterOptions?.service_types || []
-  const cities = filterOptions?.cities || []
-  const sources = filterOptions?.sources || []
+function JobberFilterBar({ filters, setFilter, patchFilters, filterOptions, search, setSearch, view }) {
+  const config = JOBBER_LIST_FILTERS[view] || { search: true }
+  const employees = uniqueEmployees(Array.isArray(filterOptions?.employees) ? filterOptions.employees : [])
+  const divisions = uniqueDivisions(Array.isArray(filterOptions?.divisions) ? filterOptions.divisions : [])
+  const serviceTypes = uniqueStrings(Array.isArray(filterOptions?.service_types) ? filterOptions.service_types : [])
+  const cities = uniqueStrings(Array.isArray(filterOptions?.cities) ? filterOptions.cities : [])
+  const sources = uniqueStrings(Array.isArray(filterOptions?.sources) ? filterOptions.sources : [])
+  const staffValue = view === 'jobs' ? filters.employee || filters.team_leader || '' : filters.employee || ''
+
+  function setStaffFilter(value) {
+    if (view === 'jobs') {
+      patchFilters({ employee: value || null, team_leader: null })
+      return
+    }
+    setFilter('employee', value)
+  }
 
   return (
     <div className="toolbar filters">
-      <input
-        value={search}
-        onChange={(event) => setSearch(event.target.value)}
-        placeholder={view === 'clients' ? 'Search customers' : `Search ${view}`}
-      />
-      <input type="date" value={filters.from || ''} onChange={(e) => setFilter('from', e.target.value)} />
-      <input type="date" value={filters.to || ''} onChange={(e) => setFilter('to', e.target.value)} />
-      <select value={filters.division || ''} onChange={(e) => setFilter('division', e.target.value)}>
-        <option value="">All divisions</option>
-        {divisions.map((item) => (
-          <option key={item.key || item} value={item.key || item}>
-            {item.label || item}
-          </option>
-        ))}
-      </select>
-      <select value={filters.employee || ''} onChange={(e) => setFilter('employee', e.target.value)}>
-        <option value="">All employees</option>
-        {employees.map((item) => (
-          <option key={item.id} value={item.id}>
-            {item.label}
-          </option>
-        ))}
-      </select>
-      <select value={filters.team_leader || ''} onChange={(e) => setFilter('team_leader', e.target.value)}>
-        <option value="">All team leaders</option>
-        {employees.map((item) => (
-          <option key={`tl-${item.id}`} value={item.id}>
-            {item.label}
-          </option>
-        ))}
-      </select>
-      <input
-        value={filters.customer || ''}
-        onChange={(e) => setFilter('customer', e.target.value)}
-        placeholder="Customer"
-      />
-      <select value={filters.service_type || ''} onChange={(e) => setFilter('service_type', e.target.value)}>
-        <option value="">All service types</option>
-        {serviceTypes.map((item) => (
-          <option key={item} value={item}>
-            {item}
-          </option>
-        ))}
-      </select>
-      <select value={filters.city || ''} onChange={(e) => setFilter('city', e.target.value)}>
-        <option value="">All cities</option>
-        {cities.map((item) => (
-          <option key={item} value={item}>
-            {item}
-          </option>
-        ))}
-      </select>
-      <select value={filters.source || ''} onChange={(e) => setFilter('source', e.target.value)}>
-        <option value="">All sales sources</option>
-        {sources.map((item) => (
-          <option key={item} value={item}>
-            {item}
-          </option>
-        ))}
-      </select>
+      {config.search ? (
+        <input
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder={view === 'clients' ? 'Search customers' : `Search ${view}`}
+        />
+      ) : null}
+      {config.dates ? (
+        <>
+          <input type="date" value={filters.from || ''} onChange={(e) => setFilter('from', e.target.value)} />
+          <input type="date" value={filters.to || ''} onChange={(e) => setFilter('to', e.target.value)} />
+        </>
+      ) : null}
+      {config.division ? (
+        <select value={filters.division || ''} onChange={(e) => setFilter('division', e.target.value)}>
+          <option value="">All divisions</option>
+          {divisions.map((item) => (
+            <option key={item.key || item} value={item.key || item}>
+              {item.label || item}
+            </option>
+          ))}
+        </select>
+      ) : null}
+      {config.employee ? (
+        <select value={staffValue} onChange={(e) => setStaffFilter(e.target.value)}>
+          <option value="">{view === 'jobs' ? 'All employees / team leaders' : 'All employees'}</option>
+          {employees.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.label}
+            </option>
+          ))}
+        </select>
+      ) : null}
+      {config.teamLeader ? (
+        <select value={filters.team_leader || ''} onChange={(e) => setFilter('team_leader', e.target.value)}>
+          <option value="">All team leaders</option>
+          {employees.map((item) => (
+            <option key={`tl-${item.id}`} value={item.id}>
+              {item.label}
+            </option>
+          ))}
+        </select>
+      ) : null}
+      {config.serviceType ? (
+        <select value={filters.service_type || ''} onChange={(e) => setFilter('service_type', e.target.value)}>
+          <option value="">All service types</option>
+          {serviceTypes.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
+      ) : null}
+      {config.city ? (
+        <select value={filters.city || ''} onChange={(e) => setFilter('city', e.target.value)}>
+          <option value="">All cities</option>
+          {cities.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
+      ) : null}
+      {config.source ? (
+        <select value={filters.source || ''} onChange={(e) => setFilter('source', e.target.value)}>
+          <option value="">All sales sources</option>
+          {sources.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
+      ) : null}
     </div>
   )
 }
 
-function ListView({ view, list, search, setSearch, filters, setFilter, filterOptions, onPage, onOpen }) {
+function ListView({ view, list, search, setSearch, filters, setFilter, patchFilters, filterOptions, onPage, onOpen }) {
   return (
     <article className="card list-card">
       <JobberFilterBar
         view={view}
         filters={filters || {}}
         setFilter={setFilter}
+        patchFilters={patchFilters}
         filterOptions={filterOptions}
         search={search}
         setSearch={setSearch}
@@ -2302,8 +2370,9 @@ function ListView({ view, list, search, setSearch, filters, setFilter, filterOpt
               <tr key={client.id}>
                 <td>
                   <button type="button" onClick={() => onOpen('clients', client.id)}>
-                    {client.name}
+                    {customerLabel(client)}
                   </button>
+                  {client.lead ? <div className="hint">Lead</div> : null}
                 </td>
                 <td>{client.email || client.phone || '—'}</td>
                 <td>{number(client.jobs)}</td>
@@ -2597,7 +2666,11 @@ function Drawer({ payload, onBack, onOpen }) {
           <Field label="Team">{item.team?.join(', ')}</Field>
           <Field label="Phone">{item.phone}</Field>
           <Field label="Email">{item.email}</Field>
-          <Field label="Total">{item.total != null ? money(item.total) : item.amount != null ? money(item.amount) : null}</Field>
+          <Field label={item.subtotal != null || item.gross_total != null ? 'Subtotal (ex tax)' : 'Total'}>
+            {item.total != null ? money(item.total) : item.amount != null ? money(item.amount) : null}
+          </Field>
+          <Field label="Tax">{item.tax != null ? money(item.tax) : null}</Field>
+          <Field label="Gross (inc tax)">{item.gross_total != null ? money(item.gross_total) : null}</Field>
           <Field label="Balance">{item.balance != null ? money(item.balance) : null}</Field>
           <Field label="Paid">{item.paid != null ? money(item.paid) : null}</Field>
           <Field label="Notes">{item.instructions || item.subject}</Field>
@@ -2978,7 +3051,7 @@ function PricingOverview({ dash, onKpi, onOpen }) {
           </div>
         </article>
 
-        <article className="pricing-panel span-12 anim-rise" style={{ '--delay': '800ms' }}>
+        <article className="pricing-panel span-12 list-panel anim-rise" style={{ '--delay': '800ms' }}>
           <header className="pricing-panel-head">
             <div>
               <h3>Recent quotes</h3>

@@ -1421,6 +1421,7 @@
   min-width: 0;
 }
 
+.pricing-panel.span-12 { grid-column: span 12; }
 .pricing-panel.span-8 { grid-column: span 8; }
 .pricing-panel.span-7 { grid-column: span 7; }
 .pricing-panel.span-6 { grid-column: span 6; }
@@ -1652,6 +1653,7 @@
     grid-template-columns: 1fr;
   }
 
+  .pricing-panel.span-12,
   .pricing-panel.span-8,
   .pricing-panel.span-7,
   .pricing-panel.span-6,
