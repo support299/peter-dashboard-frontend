@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { monthLabel, money, number } from './lib'
+import { monthLabel, money, number } from '../../lib'
 
 function asList(items) {
   return Array.isArray(items) ? items : []

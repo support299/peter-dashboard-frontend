@@ -1,5 +1,17 @@
 const API = import.meta.env.VITE_API_BASE || ''
 
+export {
+  authFetch,
+  clearAuth,
+  fetchMe,
+  getStoredUser,
+  isLoggedIn,
+  loginRequest,
+  logoutRequest,
+  restoreSession,
+} from './auth'
+import { authFetch } from './auth'
+
 export async function readJson(response) {
   const payload = await response.json().catch(() => ({}))
   if (!response.ok) {
@@ -8,8 +20,9 @@ export async function readJson(response) {
   return payload
 }
 
-export function api(path) {
-  return fetch(`${API}${path}`)
+/** Authenticated fetch (JWT). Returns Response — pair with readJson. */
+export function api(path, options) {
+  return authFetch(path, options)
 }
 
 export function money(value) {
