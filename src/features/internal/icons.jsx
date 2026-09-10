@@ -103,3 +103,40 @@ export const INTERNAL_STRIP_ICONS = {
   visits_total: VisitsIcon,
   vacation_pool: VacationIcon,
 }
+
+export function MrrActiveIcon() {
+  return (
+    <svg className="internal-hero-icon" viewBox="0 0 56 56" aria-hidden="true">
+      <circle className="ih-ring" cx="28" cy="28" r="24" />
+      <path className="is-mark mrr-wave" d="M14 34l8-10 6 5 10-14" fill="none" stroke="#0f766e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="38" cy="15" r="3" fill="#14b8a6" />
+    </svg>
+  )
+}
+
+export function MrrNewIcon() {
+  return (
+    <svg className="internal-stat-icon" viewBox="0 0 40 40" aria-hidden="true">
+      <circle className="is-bg bonus" cx="20" cy="20" r="13" />
+      <path className="is-mark" d="M20 13v14M13 20h14" />
+    </svg>
+  )
+}
+
+export function MrrLostIcon() {
+  return (
+    <svg className="internal-stat-icon" viewBox="0 0 40 40" aria-hidden="true">
+      <circle className="is-bg lockin" cx="20" cy="20" r="13" />
+      <path className="is-mark" d="M14 20h12M20 14v12" transform="rotate(45 20 20)" />
+    </svg>
+  )
+}
+
+export function MrrNetIcon() {
+  return (
+    <svg className="internal-stat-icon" viewBox="0 0 40 40" aria-hidden="true">
+      <rect className="is-bg rate" x="8" y="10" width="24" height="20" rx="4" />
+      <path className="is-mark" d="M13 24l5-6 4 3 5-7" fill="none" />
+    </svg>
+  )
+}

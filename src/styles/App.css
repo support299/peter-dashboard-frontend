@@ -3148,3 +3148,238 @@
   justify-content: flex-end;
   margin-top: 4px;
 }
+
+/* —— Jobber MRR tab —— */
+.layout.jobber .content:has(.mrr-page) {
+  /* Let sticky table shell pin flush under the topbar */
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.mrr-page {
+  display: grid;
+  gap: 18px;
+  padding: 24px 0 28px;
+}
+
+.mrr-top-grid {
+  margin-bottom: 2px;
+}
+
+.mrr-top-grid .internal-stat {
+  cursor: default;
+}
+
+.mrr-icon-wrap.new,
+.internal-icon-wrap.new {
+  background: #ecfdf5;
+}
+
+.internal-icon-wrap.lost {
+  background: #fff1f2;
+}
+
+.internal-icon-wrap.net {
+  background: #f1f5f9;
+}
+
+.mrr-hero-card {
+  cursor: default;
+}
+
+.mrr-hero-card:hover {
+  transform: none;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+}
+
+.mrr-hero-side {
+  display: grid;
+  align-content: center;
+  justify-items: end;
+  gap: 2px;
+  padding: 8px 4px;
+  border-left: 1px dashed color-mix(in srgb, #14b8a6 35%, transparent);
+  min-width: 0;
+}
+
+.mrr-hero-side span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #0f766e;
+}
+
+.mrr-hero-side strong {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+.mrr-hero-side em {
+  font-style: normal;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.mrr-chrome {
+  display: grid;
+  gap: 12px;
+  padding: 16px 18px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+}
+
+.mrr-head {
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 0;
+}
+
+.mrr-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.mrr-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.mrr-filters input[type='search'] {
+  min-width: 200px;
+  flex: 1;
+}
+
+.mrr-banner {
+  margin: 0;
+}
+
+/* Sticky under topbar; own scrollport so rows clip under the header */
+.mrr-table-shell {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  max-height: calc(100svh - 4.75rem);
+  overflow: auto;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+  transform: none;
+}
+
+.mrr-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 1100px;
+}
+
+.mrr-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  background: #ffffff;
+  box-shadow: 0 1px 0 var(--line);
+  white-space: nowrap;
+}
+
+.mrr-table thead th[title] {
+  cursor: help;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, var(--muted) 55%, transparent);
+}
+
+.mrr-table thead th[title]:hover {
+  color: #0f172a;
+}
+
+.mrr-table-shell .empty,
+.mrr-table-shell .pager {
+  padding: 14px 16px;
+}
+
+.mrr-row-actions {
+  white-space: nowrap;
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.ghost.tiny {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.mrr-modal {
+  width: min(640px, 100%);
+  max-height: min(90vh, 820px);
+  overflow: auto;
+}
+
+.mrr-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 12px;
+}
+
+.mrr-field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.mrr-field span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.mrr-field input,
+.mrr-field select,
+.mrr-field textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 11px;
+  background: var(--panel, #fff);
+  color: inherit;
+  font: inherit;
+}
+
+@media (max-width: 960px) {
+  .mrr-top-grid.internal-top-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .mrr-hero-card {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .mrr-top-grid.internal-top-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mrr-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mrr-hero-side {
+    border-left: none;
+    border-top: 1px dashed color-mix(in srgb, #14b8a6 35%, transparent);
+    justify-items: start;
+    padding-top: 12px;
+  }
+}
+

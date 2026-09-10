@@ -27,6 +27,8 @@ import PricingLocationsPage from '../../pages/pricing/LocationsPage'
 import PricingCouponsPage from '../../pages/pricing/CouponsPage'
 import PricingAddonsPage from '../../pages/pricing/AddonsPage'
 
+import JobberMrrPage from '../../pages/jobber/MrrPage'
+
 export function AppRoutes() {
   return (
     <Routes>
@@ -48,6 +50,7 @@ export function AppRoutes() {
             <Route path="jobs" element={<JobberJobsPage />} />
             <Route path="clients" element={<JobberClientsPage />} />
             <Route path="invoices" element={<JobberInvoicesPage />} />
+            <Route path="mrr" element={<JobberMrrPage />} />
             <Route path="mappings" element={<JobberMappingsPage />} />
           </Route>
 
@@ -58,6 +61,7 @@ export function AppRoutes() {
             <Route path="leave" element={<InternalLeavePage />} />
             <Route path="bonuses" element={<InternalBonusesPage />} />
             <Route path="lockins" element={<InternalLockinsPage />} />
+            <Route path="mrr" element={<Navigate to="/jobber/mrr" replace />} />
           </Route>
 
           <Route path="pricing">

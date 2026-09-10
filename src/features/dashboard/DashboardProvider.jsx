@@ -321,6 +321,11 @@ export function DashboardProvider({ children }) {
           setBoard(null)
           return
         }
+        if (source === 'jobber' && view === 'mrr') {
+          setList(null)
+          setBoard(null)
+          return
+        }
         const payload = await loadList(view, filters, 1, query)
         if (!cancelled && payload) setList(payload)
       } catch (err) {

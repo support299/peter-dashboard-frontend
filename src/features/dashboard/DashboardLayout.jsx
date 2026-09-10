@@ -133,7 +133,9 @@ function DashboardShell() {
                       ? 'Live board from Jobber operations.'
                       : view === 'mappings'
                         ? 'Edit service type and division classification rules.'
-                        : `${number(list?.count || 0)} records`}
+                        : view === 'mrr'
+                          ? 'New MRR gained vs MRR lost.'
+                          : `${number(list?.count || 0)} records`}
                 </p>
               </div>
               <div className="hero-tools">

@@ -60,6 +60,14 @@ export function NavIcon({ name }) {
           <path d="M8 11V8a4 4 0 0 1 8 0v3" />
         </svg>
       )
+    case 'mrr':
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 18V6M4 18h16" />
+          <path d="M7 14l3-4 3 2 4-6" />
+          <circle cx="17" cy="6" r="1.5" />
+        </svg>
+      )
     case 'services':
       return (
         <svg viewBox="0 0 24 24" aria-hidden="true">

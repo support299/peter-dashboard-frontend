@@ -30,11 +30,12 @@ export const JOBBER_NAV = [
   { id: 'jobs', label: 'Jobs', icon: 'jobs' },
   { id: 'clients', label: 'Customers', icon: 'clients' },
   { id: 'invoices', label: 'Invoices', icon: 'invoices' },
+  { id: 'mrr', label: 'MRR', icon: 'mrr' },
   { id: 'mappings', label: 'Mappings', icon: 'mappings' },
 ]
 
 export const JOBBER_BOARD_VIEWS = new Set(['oneoff', 'cancellations', 'cx'])
-export const JOBBER_SPECIAL_VIEWS = new Set(['oneoff', 'cancellations', 'cx', 'mappings'])
+export const JOBBER_SPECIAL_VIEWS = new Set(['oneoff', 'cancellations', 'cx', 'mappings', 'mrr'])
 
 export const INTERNAL_NAV = [
   { id: 'overview', label: 'Overview', icon: 'overview' },
