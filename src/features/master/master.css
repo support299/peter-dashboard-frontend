@@ -503,6 +503,26 @@
   fill: var(--ink);
 }
 
+.trend-chart .grid {
+  stroke: var(--line);
+  stroke-dasharray: 2 4;
+}
+
+.trend-chart .wf-label {
+  font-size: 12px;
+  font-weight: 600;
+  fill: #475569;
+}
+
+.wf-connector {
+  stroke: #94a3b8;
+  stroke-dasharray: 3 3;
+}
+
+.waterfall svg {
+  max-height: 380px;
+}
+
 .wf-total { fill: #334155; }
 .wf-up { fill: #059669; }
 .wf-down { fill: #e11d48; }
