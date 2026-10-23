@@ -37,6 +37,19 @@ function CompareRow({ kpi, name, label }) {
   )
 }
 
+/** ⓘ with a "How it's calculated" bubble on hover. */
+export function HowInfo({ text }) {
+  if (!text) return null
+  return (
+    <span className="kpi-info" aria-label={`How it's calculated: ${text}`}>
+      i<span className="kpi-info-bubble" role="tooltip">
+        <b>How it's calculated</b>
+        {text}
+      </span>
+    </span>
+  )
+}
+
 export function KpiCard({ kpi, comparisons = [], onDrill, size = 'md' }) {
   const clickable = Boolean(kpi.drill && kpi.available && onDrill)
   const Tag = clickable ? 'button' : 'article'
@@ -48,7 +61,10 @@ export function KpiCard({ kpi, comparisons = [], onDrill, size = 'md' }) {
       onClick={clickable ? () => onDrill(kpi.drill, kpi.label) : undefined}
       title={clickable ? 'Click to see the records behind this number' : undefined}
     >
-      <span className="kpi-label">{kpi.label}</span>
+      <span className="kpi-label">
+        {kpi.label}
+        <HowInfo text={kpi.how} />
+      </span>
       {kpi.available ? (
         <strong className="kpi-value">{formatValue(kpi.kind, kpi.current)}</strong>
       ) : (
@@ -99,7 +115,7 @@ function PendingKpis({ kpis }) {
           <span className="kpi-pending-title">Not available yet</span>
           <div className="kpi-chips">
             {items.map((kpi) => (
-              <span key={kpi.key} className="kpi-chip" title={note}>
+              <span key={kpi.key} className="kpi-chip" title={kpi.how || note}>
                 {kpi.label}
               </span>
             ))}
