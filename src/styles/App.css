@@ -3162,6 +3162,21 @@
   padding: 24px 0 28px;
 }
 
+.mrr-kpi-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.mrr-rate-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.mrr-rate-grid .internal-stat {
+  cursor: default;
+}
+
 .mrr-top-grid {
   margin-bottom: 2px;
 }
@@ -3368,6 +3383,10 @@
 
 @media (max-width: 640px) {
   .mrr-top-grid.internal-top-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mrr-rate-grid {
     grid-template-columns: 1fr;
   }
 

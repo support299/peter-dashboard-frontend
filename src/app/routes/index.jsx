@@ -29,6 +29,14 @@ import PricingAddonsPage from '../../pages/pricing/AddonsPage'
 
 import JobberMrrPage from '../../pages/jobber/MrrPage'
 
+import MasterOverviewPage from '../../pages/master/OverviewPage'
+import MasterRevenuePage from '../../pages/master/RevenuePage'
+import MasterClientsPage from '../../pages/master/ClientsPage'
+import MasterMrrPage from '../../pages/master/MrrPage'
+import MasterCancellationsPage from '../../pages/master/CancellationsPage'
+import MasterOperationsPage from '../../pages/master/OperationsPage'
+import MasterQualityPage from '../../pages/master/QualityPage'
+
 export function AppRoutes() {
   return (
     <Routes>
@@ -38,7 +46,18 @@ export function AppRoutes() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
-          <Route index element={<Navigate to="/jobber/overview" replace />} />
+          <Route index element={<Navigate to="/master/overview" replace />} />
+
+          <Route path="master">
+            <Route index element={<Navigate to="overview" replace />} />
+            <Route path="overview" element={<MasterOverviewPage />} />
+            <Route path="revenue" element={<MasterRevenuePage />} />
+            <Route path="clients" element={<MasterClientsPage />} />
+            <Route path="mrr" element={<MasterMrrPage />} />
+            <Route path="cancellations" element={<MasterCancellationsPage />} />
+            <Route path="operations" element={<MasterOperationsPage />} />
+            <Route path="quality" element={<MasterQualityPage />} />
+          </Route>
 
           <Route path="jobber">
             <Route index element={<Navigate to="overview" replace />} />
@@ -77,7 +96,7 @@ export function AppRoutes() {
         </Route>
       </Route>
 
-      <Route path="*" element={<Navigate to="/jobber/overview" replace />} />
+      <Route path="*" element={<Navigate to="/master/overview" replace />} />
     </Routes>
   )
 }

@@ -55,7 +55,18 @@ export const PRICING_NAV = [
   { id: 'addons', label: 'Add-ons', icon: 'addons' },
 ]
 
+export const MASTER_NAV = [
+  { id: 'overview', label: 'CEO view', icon: 'overview' },
+  { id: 'revenue', label: 'Revenue', icon: 'invoices' },
+  { id: 'clients', label: 'Clients & growth', icon: 'clients' },
+  { id: 'mrr', label: 'MRR', icon: 'mrr' },
+  { id: 'cancellations', label: 'Cancellations', icon: 'cancellations' },
+  { id: 'operations', label: 'Operations', icon: 'visits' },
+  { id: 'quality', label: 'Quality', icon: 'cx' },
+]
+
 export const SOURCE_SIDEBAR = {
+  master: { title: 'Master', subtitle: 'Management view', tone: 'teal' },
   jobber: { title: 'Jobber', subtitle: 'Operations', tone: 'teal' },
   internal: { title: 'Internal', subtitle: 'Contractor hub', tone: 'teal' },
   pricing: { title: 'Pricing', subtitle: 'Quote engine', tone: 'cyan' },

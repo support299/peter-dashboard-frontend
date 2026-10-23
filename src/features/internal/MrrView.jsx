@@ -69,46 +69,91 @@ function MrrKpis({ kpis }) {
     },
   ]
 
-  return (
-    <section className="internal-top-grid mrr-top-grid">
-      <div className="internal-hero-card mrr-hero-card anim-rise" style={{ '--delay': '40ms' }}>
-        <div className="internal-hero-main">
-          <div className="internal-hero-icon-wrap">
-            <MrrActiveIcon />
-          </div>
-          <div>
-            <span className="internal-eyebrow">Active book</span>
-            <AnimatedMetric kpi={{ value: kpis.active_mrr || 0, kind: 'currency' }} delay={40} />
-            <p>{number(kpis.active_count || 0)} active clients · current monthly recurring</p>
-          </div>
-        </div>
-        <div className="mrr-hero-side">
-          <span>Portfolio</span>
-          <strong>{number(kpis.active_count || 0)}</strong>
-          <em>live accounts</em>
-        </div>
-      </div>
+  const rateCards = [
+    {
+      key: 'res-rate',
+      label: 'Residential avg $/H',
+      tone: 'teal',
+      hint:
+        kpis.avg_hourly_residential != null
+          ? `${number(kpis.avg_hourly_residential_count || 0)} active with hours`
+          : 'No hours set yet',
+      value: kpis.avg_hourly_residential,
+    },
+    {
+      key: 'com-rate',
+      label: 'Commercial avg $/H',
+      tone: 'blue',
+      hint:
+        kpis.avg_hourly_commercial != null
+          ? `${number(kpis.avg_hourly_commercial_count || 0)} active with hours`
+          : 'No hours set yet',
+      value: kpis.avg_hourly_commercial,
+    },
+  ]
 
-      {side.map((item, index) => {
-        const Icon = item.Icon
-        return (
+  return (
+    <div className="mrr-kpi-stack">
+      <section className="internal-top-grid mrr-top-grid">
+        <div className="internal-hero-card mrr-hero-card anim-rise" style={{ '--delay': '40ms' }}>
+          <div className="internal-hero-main">
+            <div className="internal-hero-icon-wrap">
+              <MrrActiveIcon />
+            </div>
+            <div>
+              <span className="internal-eyebrow">Active book</span>
+              <AnimatedMetric kpi={{ value: kpis.active_mrr || 0, kind: 'currency' }} delay={40} />
+              <p>{number(kpis.active_count || 0)} active clients · current monthly recurring</p>
+            </div>
+          </div>
+          <div className="mrr-hero-side">
+            <span>Portfolio</span>
+            <strong>{number(kpis.active_count || 0)}</strong>
+            <em>live accounts</em>
+          </div>
+        </div>
+
+        {side.map((item, index) => {
+          const Icon = item.Icon
+          return (
+            <div
+              key={item.key}
+              className={`internal-stat tone-${item.tone} anim-rise`}
+              style={{ '--delay': `${120 + index * 70}ms` }}
+            >
+              <div className="internal-stat-top">
+                <span>{item.label}</span>
+                <span className={`internal-icon-wrap ${item.key}`}>
+                  <Icon />
+                </span>
+              </div>
+              <AnimatedMetric kpi={item.kpi} delay={120 + index * 70} />
+              <em>{item.hint}</em>
+            </div>
+          )
+        })}
+      </section>
+
+      <section className="mrr-rate-grid">
+        {rateCards.map((item, index) => (
           <div
             key={item.key}
             className={`internal-stat tone-${item.tone} anim-rise`}
-            style={{ '--delay': `${120 + index * 70}ms` }}
+            style={{ '--delay': `${320 + index * 70}ms` }}
           >
             <div className="internal-stat-top">
               <span>{item.label}</span>
-              <span className={`internal-icon-wrap ${item.key}`}>
-                <Icon />
-              </span>
             </div>
-            <AnimatedMetric kpi={item.kpi} delay={120 + index * 70} />
+            {item.value != null ? (
+              <AnimatedMetric kpi={{ value: item.value, kind: 'currency' }} delay={320 + index * 70} />
+            ) : (
+              <strong className="metric-value">—</strong>
+            )}
             <em>{item.hint}</em>
           </div>
-        )
-      })}
-    </section>
+        ))}
+      </section>
+    </div>
   )
 }
 
@@ -432,6 +477,9 @@ export function MrrView() {
                 <th scope="col" title="Visit value">
                   Visit $
                 </th>
+                <th scope="col" title="Average hourly rate (visit value ÷ hours per visit)">
+                  Avg $/H
+                </th>
                 <th scope="col" title="Monthly Recurring Revenue">
                   MRR
                 </th>
@@ -471,6 +519,7 @@ export function MrrView() {
                   <td>{row.hours_per_visit != null ? number(row.hours_per_visit) : '—'}</td>
                   <td>{row.hours_per_month != null ? number(row.hours_per_month) : '—'}</td>
                   <td>{money(row.visit_value)}</td>
+                  <td>{row.avg_hourly_rate != null ? money(row.avg_hourly_rate) : '—'}</td>
                   <td>{money(row.monthly_value)}</td>
                   <td>{money(row.yearly_value)}</td>
                   <td>{when(row.start_date)}</td>

@@ -21,7 +21,7 @@ export function ProtectedRoute() {
 export function GuestRoute() {
   const { authReady, isAuthenticated } = useAuth()
   const location = useLocation()
-  const redirectTo = location.state?.from?.pathname || '/jobber/overview'
+  const redirectTo = location.state?.from?.pathname || '/master/overview'
 
   if (!authReady) {
     return <div className="content muted">Loading…</div>

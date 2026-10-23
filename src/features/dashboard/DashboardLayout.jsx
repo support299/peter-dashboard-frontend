@@ -7,7 +7,18 @@ import { ChangePasswordModal } from '../auth'
 import { Drawer } from '../jobber'
 import { PricingDrawer } from '../pricing'
 import { DashboardProvider, useDashboard } from './DashboardProvider'
+import { PeriodProvider } from '../master/PeriodContext'
 import '../../styles/App.css'
+
+const MASTER_SUBTITLES = {
+  overview: 'Is the company healthy, and what changed? Click any number to see why.',
+  revenue: 'Revenue by type and division, profitability, top clients and receivables.',
+  clients: 'Are we gaining or losing clients, and are recurring clients growing?',
+  mrr: 'Monthly recurring revenue: what we added, what we lost, and paused clients.',
+  cancellations: 'How much revenue cancellations cost us, and why they happen.',
+  operations: 'Hours, overtime, revenue per labour hour and absences.',
+  quality: 'Touch-ups, feedback, complaints and reviews.',
+}
 
 function DashboardShell() {
   const {
@@ -43,7 +54,7 @@ function DashboardShell() {
   }
 
   const layoutClass =
-    source === 'internal' ? 'layout internal' : source === 'pricing' ? 'layout pricing' : source === 'jobber' ? 'layout jobber' : 'layout'
+    source === 'internal' ? 'layout internal' : source === 'pricing' ? 'layout pricing' : source === 'jobber' || source === 'master' ? 'layout jobber' : 'layout'
 
   return (
     <div className="app">
@@ -56,7 +67,9 @@ function DashboardShell() {
           <div>
             <h1>Peter</h1>
             <p>
-              {source === 'jobber'
+              {source === 'master'
+                ? 'Master Dashboard'
+                : source === 'jobber'
                 ? jobber?.account_name || 'Jobber'
                 : source === 'internal'
                   ? 'Contractor Hub'
@@ -75,9 +88,9 @@ function DashboardShell() {
             className="ghost"
             type="button"
             onClick={refresh}
-            disabled={busy || syncing || (source === 'jobber' && !connected)}
+            disabled={busy || syncing || ((source === 'jobber' || source === 'master') && !connected)}
           >
-            {syncing ? 'Refreshing…' : source === 'jobber' ? 'Refresh' : source === 'internal' ? 'Sync Internal' : 'Sync Pricing'}
+            {syncing ? 'Refreshing…' : source === 'jobber' || source === 'master' ? 'Refresh' : source === 'internal' ? 'Sync Internal' : 'Sync Pricing'}
           </button>
           <ProfileMenu
             user={user}
@@ -118,12 +131,15 @@ function DashboardShell() {
                     ← Back
                   </button>
                 ) : null}
+                {source === 'master' ? <p className="hero-kicker jobber-kicker">Management</p> : null}
                 {source === 'jobber' && view === 'overview' ? <p className="hero-kicker jobber-kicker">Jobber operations</p> : null}
                 {source === 'internal' ? <p className="hero-kicker">Admin internal</p> : null}
                 {source === 'pricing' ? <p className="hero-kicker pricing-kicker">Pricing calculator</p> : null}
                 <h2>{title}</h2>
                 <p className="muted">
-                  {view === 'overview'
+                  {source === 'master'
+                    ? MASTER_SUBTITLES[view]
+                    : view === 'overview'
                     ? source === 'jobber'
                       ? 'Click any number or chart to see the work behind it.'
                       : source === 'internal'
@@ -183,7 +199,11 @@ function DashboardShell() {
               </article>
             ) : null}
 
-            {!showInternalEmpty && !showPricingEmpty ? <Outlet /> : null}
+            {!showInternalEmpty && !showPricingEmpty ? (
+              <PeriodProvider>
+                <Outlet />
+              </PeriodProvider>
+            ) : null}
           </main>
         </div>
       ) : null}

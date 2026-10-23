@@ -5,15 +5,17 @@ import {
   JOBBER_LIST_PATH,
   JOBBER_NAV,
   INTERNAL_LIST_PATH,
+  MASTER_NAV,
   INTERNAL_NAV,
   PRICING_LIST_PATH,
   PRICING_NAV,
 } from '../../config/navigation'
 import { api, queryString, readJson } from '../../lib'
 
-const SOURCES = new Set(['jobber', 'internal', 'pricing'])
+const SOURCES = new Set(['master', 'jobber', 'internal', 'pricing'])
 
 const VIEWS_BY_SOURCE = {
+  master: new Set(MASTER_NAV.map((item) => item.id)),
   jobber: new Set(JOBBER_NAV.map((item) => item.id)),
   internal: new Set(INTERNAL_NAV.map((item) => item.id)),
   pricing: new Set(PRICING_NAV.map((item) => item.id)),
@@ -49,8 +51,9 @@ export function DashboardProvider({ children }) {
   const [busy, setBusy] = useState(false)
 
   const connected = Boolean(jobber?.connected)
+  // The Master Dashboard is built from the Jobber sync, so it shares Jobber's status and refresh.
   const syncing =
-    source === 'jobber'
+    source === 'jobber' || source === 'master'
       ? ['queued', 'running', 'syncing'].includes(jobber?.sync?.status) || jobber?.status === 'syncing'
       : source === 'internal'
         ? ['queued', 'running'].includes(internal?.sync?.status)
@@ -210,7 +213,9 @@ export function DashboardProvider({ children }) {
       setQuery('')
       setFilterOptions(null)
       try {
-        if (source === 'jobber') {
+        if (source === 'master') {
+          await loadJobberStatus()
+        } else if (source === 'jobber') {
           const state = await loadJobberStatus()
           if (!cancelled && state?.connected) {
             await loadJobberDash({})
@@ -247,7 +252,9 @@ export function DashboardProvider({ children }) {
     if (!syncing) return undefined
     const timer = setInterval(async () => {
       try {
-        if (source === 'jobber') {
+        if (source === 'master') {
+          await loadJobberStatus()
+        } else if (source === 'jobber') {
           const state = await loadJobberStatus()
           if (state?.sync?.status === 'success') await loadJobberDash()
         } else if (source === 'internal') {
@@ -282,7 +289,7 @@ export function DashboardProvider({ children }) {
 
   useEffect(() => {
     let cancelled = false
-    if (view === 'overview') return undefined
+    if (view === 'overview' || source === 'master') return undefined
     if (source === 'jobber' && !connected) return undefined
 
     // View just changed: wait for the filter-reset effect's next render.
@@ -343,7 +350,7 @@ export function DashboardProvider({ children }) {
     setBusy(true)
     setError('')
     try {
-      if (source === 'jobber') {
+      if (source === 'jobber' || source === 'master') {
         const payload = await readJson(await api('/api/jobber/sync/', { method: 'POST' }))
         setJobber(payload.jobber)
       } else if (source === 'internal') {
@@ -469,9 +476,10 @@ export function DashboardProvider({ children }) {
     })
   }, [])
 
-  const nav = source === 'jobber' ? JOBBER_NAV : source === 'internal' ? INTERNAL_NAV : PRICING_NAV
+  const nav = source === 'master' ? MASTER_NAV : source === 'jobber' ? JOBBER_NAV : source === 'internal' ? INTERNAL_NAV : PRICING_NAV
   const title = useMemo(() => {
     if (view === 'overview') {
+      if (source === 'master') return 'Master Dashboard'
       if (source === 'jobber') return jobber?.account_name || 'Jobber'
       if (source === 'internal') return 'Internal App'
       return 'Pricing Calculator'
@@ -480,7 +488,7 @@ export function DashboardProvider({ children }) {
   }, [view, jobber, source, nav])
 
   const updatedAt =
-    source === 'jobber'
+    source === 'jobber' || source === 'master'
       ? jobber?.last_synced_at
       : source === 'internal'
         ? internal?.last_success?.finished_at || internal?.sync?.finished_at
@@ -559,7 +567,7 @@ export function DashboardProvider({ children }) {
   )
 
   if (!SOURCES.has(source) || !viewValid) {
-    return <Navigate to={dashboardPath('jobber', 'overview')} replace />
+    return <Navigate to={dashboardPath('master', 'overview')} replace />
   }
 
   return <DashboardContext.Provider value={value}>{children}</DashboardContext.Provider>
