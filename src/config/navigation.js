@@ -60,13 +60,38 @@ export const MASTER_NAV = [
   { id: 'revenue', label: 'Revenue', icon: 'invoices' },
   { id: 'clients', label: 'Clients & growth', icon: 'clients' },
   { id: 'mrr', label: 'MRR', icon: 'mrr' },
+  { id: 'sales', label: 'Sales & leads', icon: 'quotes' },
   { id: 'cancellations', label: 'Cancellations', icon: 'cancellations' },
   { id: 'operations', label: 'Operations', icon: 'visits' },
   { id: 'quality', label: 'Quality', icon: 'cx' },
+  { id: 'alerts', label: 'Alerts', icon: 'lockins' },
+  { id: 'rules', label: 'Revenue rules', icon: 'mappings', staff: true },
 ]
+
+/** `min`: lowest Financials role that sees the page (entry < full < admin). */
+export const FINANCIALS_NAV = [
+  { id: 'expenses', label: 'Expenses', icon: 'invoices', min: 'full' },
+  { id: 'entries', label: 'Expense entries', icon: 'jobs', min: 'entry' },
+  { id: 'payroll', label: 'Payroll', icon: 'employees', min: 'full' },
+  { id: 'contractor-pay', label: 'Contractor pay', icon: 'bonuses', min: 'full' },
+  { id: 'recurring', label: 'Recurring', icon: 'mrr', min: 'full' },
+  { id: 'totals', label: 'Monthly totals & import', icon: 'mappings', min: 'full' },
+  { id: 'pnl', label: 'Profit & Loss', icon: 'overview', min: 'full' },
+  { id: 'cash', label: 'Cash & Debt', icon: 'bonuses', min: 'full' },
+  { id: 'reports', label: 'Reports', icon: 'visits', min: 'full' },
+  { id: 'review', label: 'Month review', icon: 'lockins', min: 'full' },
+  { id: 'settings', label: 'Categories & access', icon: 'services', min: 'full' },
+]
+
+export const FINANCE_RANK = { '': 0, entry: 1, full: 2, admin: 3 }
+
+export function financialsNav(role) {
+  return FINANCIALS_NAV.filter((item) => FINANCE_RANK[role || ''] >= FINANCE_RANK[item.min])
+}
 
 export const SOURCE_SIDEBAR = {
   master: { title: 'Master', subtitle: 'Management view', tone: 'teal' },
+  financials: { title: 'Financials', subtitle: 'Expenses & profit', tone: 'teal' },
   jobber: { title: 'Jobber', subtitle: 'Operations', tone: 'teal' },
   internal: { title: 'Internal', subtitle: 'Contractor hub', tone: 'teal' },
   pricing: { title: 'Pricing', subtitle: 'Quote engine', tone: 'cyan' },

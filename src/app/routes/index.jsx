@@ -36,6 +36,21 @@ import MasterMrrPage from '../../pages/master/MrrPage'
 import MasterCancellationsPage from '../../pages/master/CancellationsPage'
 import MasterOperationsPage from '../../pages/master/OperationsPage'
 import MasterQualityPage from '../../pages/master/QualityPage'
+import MasterSalesPage from '../../pages/master/SalesPage'
+import MasterAlertsPage from '../../pages/master/AlertsPage'
+import MasterRulesPage from '../../pages/master/RulesPage'
+
+import FinancialsExpensesPage from '../../pages/financials/ExpensesPage'
+import FinancialsEntriesPage from '../../pages/financials/EntriesPage'
+import FinancialsPayrollPage from '../../pages/financials/PayrollPage'
+import FinancialsContractorPayPage from '../../pages/financials/ContractorPayPage'
+import FinancialsRecurringPage from '../../pages/financials/RecurringPage'
+import FinancialsTotalsPage from '../../pages/financials/TotalsPage'
+import FinancialsPnlPage from '../../pages/financials/PnlPage'
+import FinancialsCashPage from '../../pages/financials/CashPage'
+import FinancialsReportsPage from '../../pages/financials/ReportsPage'
+import FinancialsReviewPage from '../../pages/financials/ReviewPage'
+import FinancialsSettingsPage from '../../pages/financials/SettingsPage'
 
 export function AppRoutes() {
   return (
@@ -57,6 +72,24 @@ export function AppRoutes() {
             <Route path="cancellations" element={<MasterCancellationsPage />} />
             <Route path="operations" element={<MasterOperationsPage />} />
             <Route path="quality" element={<MasterQualityPage />} />
+            <Route path="sales" element={<MasterSalesPage />} />
+            <Route path="alerts" element={<MasterAlertsPage />} />
+            <Route path="rules" element={<MasterRulesPage />} />
+          </Route>
+
+          <Route path="financials">
+            <Route index element={<Navigate to="expenses" replace />} />
+            <Route path="expenses" element={<FinancialsExpensesPage />} />
+            <Route path="entries" element={<FinancialsEntriesPage />} />
+            <Route path="payroll" element={<FinancialsPayrollPage />} />
+            <Route path="contractor-pay" element={<FinancialsContractorPayPage />} />
+            <Route path="recurring" element={<FinancialsRecurringPage />} />
+            <Route path="totals" element={<FinancialsTotalsPage />} />
+            <Route path="pnl" element={<FinancialsPnlPage />} />
+            <Route path="cash" element={<FinancialsCashPage />} />
+            <Route path="reports" element={<FinancialsReportsPage />} />
+            <Route path="review" element={<FinancialsReviewPage />} />
+            <Route path="settings" element={<FinancialsSettingsPage />} />
           </Route>
 
           <Route path="jobber">

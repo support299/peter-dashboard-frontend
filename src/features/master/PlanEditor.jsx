@@ -42,6 +42,13 @@ export function PlanEditor({ plan, onClose, onSaved }) {
             {money(plan.detected_monthly_value)} ({plan.pricing_label}) · Jobber says{' '}
             {STATUS_LABELS[plan.detected_status] || plan.detected_status}
           </p>
+          {plan.old_tab ? (
+            <p className="muted old-tab-note">
+              Old MRR tab: {plan.old_tab.status}, {money(plan.old_tab.monthly_value)}/month
+              {plan.old_tab.sales_person ? ` · sold by ${plan.old_tab.sales_person}` : ''}
+              {plan.old_tab.cancellation_reason ? ` · reason it ended: ${plan.old_tab.cancellation_reason}` : ''}
+            </p>
+          ) : null}
         </header>
 
         <label>

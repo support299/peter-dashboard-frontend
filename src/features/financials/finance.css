@@ -1,0 +1,700 @@
+/* Financials. Builds on master.css (panels, KPI cards, tables, period bar). */
+
+.finance .period-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+button.link {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.ghost.danger {
+  color: var(--danger);
+  border-color: #fecdd3;
+}
+
+.spacer {
+  flex: 1;
+}
+
+/* ——— dialog & form ——— */
+.fin-modal {
+  display: grid;
+  gap: 14px;
+  width: min(640px, calc(100% - 32px));
+  max-height: calc(100% - 32px);
+  overflow: auto;
+  padding: 22px;
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+}
+
+.fin-modal.wide {
+  width: min(960px, calc(100% - 32px));
+}
+
+.fin-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.fin-modal-head h3 {
+  margin: 2px 0 0;
+  font-size: 20px;
+}
+
+.fin-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 14px;
+}
+
+.fin-form-grid .wide,
+.fin-field.wide {
+  grid-column: 1 / -1;
+}
+
+.fin-field {
+  display: grid;
+  gap: 5px;
+  align-content: start;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.fin-field > span {
+  font-weight: 600;
+}
+
+.fin-field input,
+.fin-field select,
+.fin-field textarea,
+.fin-filters input,
+.fin-filters select,
+.fin-inline-form input,
+.fin-inline-form select,
+.fin-add-cat input,
+.fin-cat-row input,
+.finance .master-panel-head input[type='month'],
+.fin-table select {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 11px;
+  background: white;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.fin-field input:focus,
+.fin-field select:focus,
+.fin-field textarea:focus {
+  outline: 2px solid var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.fin-field small {
+  font-size: 12px;
+}
+
+.fin-tax-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: -4px;
+  font-size: 13px;
+}
+
+.fin-tax-tools .muted {
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.fin-help {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.fin-total {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+}
+
+.fin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.fin-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.fin-check input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--accent);
+}
+
+/* ——— receipt ——— */
+.fin-receipt {
+  display: grid;
+  gap: 8px;
+}
+
+.fin-receipt-current {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+}
+
+.fin-file {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 10px 14px;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: var(--ink);
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+}
+
+.fin-file:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.fin-file input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.fin-file.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fin-duplicates {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  font-size: 14px;
+}
+
+.fin-duplicates ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+/* ——— dashboard bits ——— */
+.fin-alerts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fin-alert {
+  border: 1px solid #fed7aa;
+  border-radius: 999px;
+  padding: 7px 14px;
+  background: #fff7ed;
+  color: #9a3412;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.fin-alert.soft {
+  border-color: var(--line);
+  background: white;
+  color: var(--muted);
+}
+
+.fin-empty {
+  padding: 22px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 16px;
+  background: white;
+  text-align: center;
+}
+
+.fin-empty h3 {
+  margin: 0 0 6px;
+}
+
+.fin-bars {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fin-bars li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  font-size: 14px;
+}
+
+.fin-bars i {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  height: 10px;
+  width: var(--w);
+  min-width: 2px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.fin-bars i.b-opex {
+  background: #6366f1;
+}
+
+.fin-bars i.b-vehicles {
+  background: #f59e0b;
+}
+
+.fin-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.fin-stats > div {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: white;
+}
+
+.fin-stats span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.fin-stats strong {
+  font-size: 22px;
+}
+
+.fin-stats.compact strong {
+  font-size: 18px;
+}
+
+/* ——— tables & lists ——— */
+.fin-filters {
+  display: grid;
+  grid-template-columns: 2fr repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.fin-table tr.clickable {
+  cursor: pointer;
+}
+
+.fin-table tr.clickable:hover td {
+  background: #f8fafc;
+}
+
+.fin-table tfoot td {
+  font-weight: 700;
+  background: #f8fafc;
+}
+
+.fin-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.fin-tag.warn {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.fin-warn-text {
+  color: #c2410c;
+}
+
+.fin-row-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.fin-row-error td {
+  background: #fff1f2;
+}
+
+.fin-row-dup td {
+  background: #fffbeb;
+}
+
+.fin-preview {
+  max-height: 420px;
+}
+
+.fin-pos {
+  color: var(--good, #047857);
+}
+
+.fin-neg {
+  color: var(--danger);
+}
+
+.fin-inline-form {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 2fr auto;
+  gap: 8px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+
+.fin-list {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.fin-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: white;
+}
+
+.fin-subhead {
+  margin: 18px 0 0;
+  font-size: 14px;
+}
+
+/* ——— P&L ——— */
+.breakdown.pnl tr.pnl-total td {
+  font-weight: 700;
+  border-top: 2px solid var(--line);
+}
+
+.breakdown.pnl tr.pnl-ratio td {
+  font-size: 12px;
+  color: var(--muted);
+  padding-top: 2px;
+}
+
+.breakdown.pnl tr.pnl-detail td {
+  font-size: 13px;
+  color: var(--muted);
+  background: #fafbfc;
+}
+
+.breakdown.pnl tr.pnl-detail td:first-child {
+  padding-left: 30px;
+}
+
+.breakdown.pnl tr.pnl-section td {
+  padding-top: 16px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.pnl-caret {
+  display: inline-block;
+  width: 16px;
+  color: var(--muted);
+}
+
+.breakdown.report th,
+.breakdown.report td {
+  white-space: nowrap;
+}
+
+.breakdown.report td:first-child,
+.breakdown.report th:first-child {
+  position: sticky;
+  left: 0;
+  background: white;
+}
+
+/* ——— month review ——— */
+.fin-months {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.fin-month {
+  display: grid;
+  gap: 2px;
+  min-width: 96px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: white;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.fin-month small {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.fin-month.reviewed small {
+  color: #047857;
+  font-weight: 700;
+}
+
+.fin-month.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.fin-hints {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.fin-hints li::before {
+  display: inline-block;
+  width: 22px;
+}
+
+.fin-hints li.ok::before {
+  content: '✓';
+  color: #047857;
+  font-weight: 700;
+}
+
+.fin-hints li.warn::before {
+  content: '!';
+  color: #c2410c;
+  font-weight: 800;
+}
+
+.fin-checklist {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+/* ——— categories ——— */
+.fin-cat-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.fin-cat-group h4 {
+  margin: 0 0 8px;
+}
+
+.fin-cat-group ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fin-cat ul {
+  margin: 6px 0 4px 18px;
+}
+
+.fin-cat-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fin-cat-row input {
+  min-height: 34px;
+  padding: 5px 9px;
+}
+
+.fin-cat.inactive > .fin-cat-row {
+  opacity: 0.5;
+}
+
+.fin-flags {
+  display: flex;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.fin-flags .fin-check {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.fin-add-cat {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.fin-add-cat input {
+  min-height: 34px;
+  padding: 5px 9px;
+  border-style: dashed;
+}
+
+/* ——— phones ——— */
+@media (max-width: 900px) {
+  .fin-filters,
+  .fin-inline-form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .fin-filters input {
+    grid-column: 1 / -1;
+  }
+
+  .fin-cat-groups {
+    grid-template-columns: 1fr;
+  }
+
+  .fin-flags {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .drill-backdrop.nested {
+    align-items: stretch;
+  }
+
+  .fin-modal,
+  .fin-modal.wide {
+    width: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    padding: 16px;
+  }
+
+  .fin-form-grid,
+  .fin-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .finance .period-actions {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .finance .period-actions .primary {
+    flex: 1;
+  }
+}
+
+/* ——— print (Reports → Print / PDF) ——— */
+@media print {
+  .topbar,
+  .side-nav,
+  .period-bar,
+  .hero,
+  .trend-controls,
+  .fin-alerts {
+    display: none !important;
+  }
+
+  .layout,
+  .content {
+    display: block !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .master-panel {
+    box-shadow: none;
+    border: 0;
+  }
+
+  .drill-table-wrap {
+    overflow: visible;
+    border: 0;
+  }
+}
+
+/* ——— fixes after screenshots ——— */
+.fin-table td:first-child,
+.fin-month span {
+  white-space: nowrap;
+}
+
+.finance .master-panel-head input[type='month'] {
+  width: auto;
+  min-width: 170px;
+}
+
+.fin-cat-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.fin-cat button.link {
+  margin: 2px 0 0 4px;
+  font-size: 12px;
+}
+
+.fin-note {
+  margin: 8px 12px;
+}

@@ -22,10 +22,13 @@ export function formatChange(kind, current, comparison) {
   return { diff, text: pct ? `${sign}${amount} / ${pct}` : `${sign}${amount}` }
 }
 
-/** good | bad | flat, using the KPI's "better" direction. */
-export function tone(better, diff) {
+/**
+ * Colour of a change: increases green, decreases red (client preference, Oct 2026),
+ * even where a decrease is good news (e.g. fewer cancellations).
+ */
+export function tone(diff) {
   if (!diff) return 'flat'
-  return (diff > 0) === (better !== 'down') ? 'good' : 'bad'
+  return diff > 0 ? 'good' : 'bad'
 }
 
 export function shortDate(value) {

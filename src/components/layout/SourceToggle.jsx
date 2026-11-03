@@ -1,9 +1,14 @@
-export function SourceToggle({ source, onChange }) {
+export function SourceToggle({ source, onChange, showFinancials = false }) {
   return (
     <div className="source-toggle" role="tablist" aria-label="Dashboard source">
       <button type="button" role="tab" aria-selected={source === 'master'} className={source === 'master' ? 'active' : ''} onClick={() => onChange('master')}>
         Master
       </button>
+      {showFinancials ? (
+        <button type="button" role="tab" aria-selected={source === 'financials'} className={source === 'financials' ? 'active' : ''} onClick={() => onChange('financials')}>
+          Financials
+        </button>
+      ) : null}
       <button type="button" role="tab" aria-selected={source === 'jobber'} className={source === 'jobber' ? 'active' : ''} onClick={() => onChange('jobber')}>
         Jobber
       </button>

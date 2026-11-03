@@ -1,6 +1,16 @@
 import { formatChange, formatValue, tone } from './format'
 
 const SHORT_NAMES = { previous: 'Prev. period', last_year: 'Last year' }
+const PHONE_NAMES = { previous: 'Prev.', last_year: 'Last yr' }
+
+export function RowName({ name, label }) {
+  return (
+    <span className="kpi-row-name">
+      <span className="kpi-row-long">{SHORT_NAMES[name] || label}</span>
+      <span className="kpi-row-short">{PHONE_NAMES[name] || label}</span>
+    </span>
+  )
+}
 
 /** "▲ 3.4%" for amounts and counts, "▼ 8.1 pts" for percentages. */
 function deltaText(kind, current, other) {
@@ -20,7 +30,7 @@ function CompareRow({ kpi, name, label }) {
   if (other === null) {
     return (
       <div className="kpi-row" title={`${title}: no data for that period`}>
-        <span className="kpi-row-name">{SHORT_NAMES[name] || label}</span>
+        <RowName name={name} label={label} />
         <span className="kpi-row-value">—</span>
         <span className="kpi-delta flat">n/a</span>
       </div>
@@ -30,9 +40,10 @@ function CompareRow({ kpi, name, label }) {
   const exact = formatChange(kpi.kind, kpi.current, other)
   return (
     <div className="kpi-row" title={`${title}${exact ? `: ${exact.text}` : ''}`}>
-      <span className="kpi-row-name">{SHORT_NAMES[name] || label}</span>
+      <RowName name={name} label={label} />
       <span className="kpi-row-value">{formatValue(kpi.kind, other)}</span>
-      <span className={`kpi-delta ${tone(kpi.better, delta.diff)}`}>{delta.text}</span>
+      <span className={`kpi-delta ${tone(delta.diff)}`}>{delta.text}</span>
+      {kpi.kind === 'currency' && exact && delta.diff ? <span className={`kpi-row-diff ${tone(delta.diff)}`}>{exact.text.split(' / ')[0]}</span> : null}
     </div>
   )
 }
@@ -57,7 +68,7 @@ export function KpiCard({ kpi, comparisons = [], onDrill, size = 'md' }) {
   return (
     <Tag
       type={clickable ? 'button' : undefined}
-      className={`kpi-card size-${size}${kpi.available ? '' : ' unavailable'}${clickable ? ' clickable' : ''}`}
+      className={`kpi-card size-${size}${kpi.available ? '' : ' unavailable'}${clickable ? ' clickable' : ''}${kpi.alerts?.length ? ' alerted' : ''}`}
       onClick={clickable ? () => onDrill(kpi.drill, kpi.label) : undefined}
       title={clickable ? 'Click to see the records behind this number' : undefined}
     >
@@ -76,6 +87,11 @@ export function KpiCard({ kpi, comparisons = [], onDrill, size = 'md' }) {
             <CompareRow key={name} kpi={kpi} name={name} label={label} />
           ))}
         </div>
+      ) : null}
+      {kpi.alerts?.length ? (
+        <span className="kpi-alert" title={kpi.alerts.join('\n')}>
+          ⚠ {kpi.alerts[0]}
+        </span>
       ) : null}
       {kpi.note ? <span className="kpi-note">{kpi.note}</span> : null}
       {kpi.point_in_time && kpi.available && !rows.length ? <span className="kpi-note">At end of period</span> : null}

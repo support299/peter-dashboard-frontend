@@ -9,10 +9,14 @@ import {
   INTERNAL_NAV,
   PRICING_LIST_PATH,
   PRICING_NAV,
+  financialsNav,
 } from '../../config/navigation'
+import { useAuth } from '../../app/providers/AuthProvider'
 import { api, queryString, readJson } from '../../lib'
 
-const SOURCES = new Set(['master', 'jobber', 'internal', 'pricing'])
+const SOURCES = new Set(['master', 'financials', 'jobber', 'internal', 'pricing'])
+// Master and Financials both read the Jobber sync (revenue), so they share its status and refresh.
+const JOBBER_BACKED = new Set(['master', 'financials', 'jobber'])
 
 const VIEWS_BY_SOURCE = {
   master: new Set(MASTER_NAV.map((item) => item.id)),
@@ -27,13 +31,21 @@ export function dashboardPath(source, view = 'overview') {
   return `/${source}/${view}`
 }
 
+/** First Financials page this role may open. */
+export function financialsHome(role) {
+  return financialsNav(role)[0]?.id || 'entries'
+}
+
 export function DashboardProvider({ children }) {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const segments = pathname.split('/').filter(Boolean)
   const source = SOURCES.has(segments[0]) ? segments[0] : 'jobber'
   const view = segments[1] || 'overview'
-  const viewValid = VIEWS_BY_SOURCE[source]?.has(view)
+  const { user } = useAuth()
+  const financeRole = user?.finance_role || ''
+  const viewValid =
+    source === 'financials' ? financialsNav(financeRole).some((item) => item.id === view) : VIEWS_BY_SOURCE[source]?.has(view)
 
   const [jobber, setJobber] = useState(null)
   const [internal, setInternal] = useState(null)
@@ -53,7 +65,7 @@ export function DashboardProvider({ children }) {
   const connected = Boolean(jobber?.connected)
   // The Master Dashboard is built from the Jobber sync, so it shares Jobber's status and refresh.
   const syncing =
-    source === 'jobber' || source === 'master'
+    JOBBER_BACKED.has(source)
       ? ['queued', 'running', 'syncing'].includes(jobber?.sync?.status) || jobber?.status === 'syncing'
       : source === 'internal'
         ? ['queued', 'running'].includes(internal?.sync?.status)
@@ -213,7 +225,7 @@ export function DashboardProvider({ children }) {
       setQuery('')
       setFilterOptions(null)
       try {
-        if (source === 'master') {
+        if (source === 'master' || source === 'financials') {
           await loadJobberStatus()
         } else if (source === 'jobber') {
           const state = await loadJobberStatus()
@@ -252,7 +264,7 @@ export function DashboardProvider({ children }) {
     if (!syncing) return undefined
     const timer = setInterval(async () => {
       try {
-        if (source === 'master') {
+        if (source === 'master' || source === 'financials') {
           await loadJobberStatus()
         } else if (source === 'jobber') {
           const state = await loadJobberStatus()
@@ -289,7 +301,7 @@ export function DashboardProvider({ children }) {
 
   useEffect(() => {
     let cancelled = false
-    if (view === 'overview' || source === 'master') return undefined
+    if (view === 'overview' || source === 'master' || source === 'financials') return undefined
     if (source === 'jobber' && !connected) return undefined
 
     // View just changed: wait for the filter-reset effect's next render.
@@ -350,7 +362,7 @@ export function DashboardProvider({ children }) {
     setBusy(true)
     setError('')
     try {
-      if (source === 'jobber' || source === 'master') {
+      if (JOBBER_BACKED.has(source)) {
         const payload = await readJson(await api('/api/jobber/sync/', { method: 'POST' }))
         setJobber(payload.jobber)
       } else if (source === 'internal') {
@@ -403,9 +415,9 @@ export function DashboardProvider({ children }) {
       setDash(null)
       pendingFiltersRef.current = null
       prevViewRef.current = 'overview'
-      navigate(dashboardPath(next, 'overview'))
+      navigate(dashboardPath(next, next === 'financials' ? financialsHome(financeRole) : 'overview'))
     },
-    [source, navigate],
+    [source, navigate, financeRole],
   )
 
   const openView = useCallback(
@@ -476,7 +488,16 @@ export function DashboardProvider({ children }) {
     })
   }, [])
 
-  const nav = source === 'master' ? MASTER_NAV : source === 'jobber' ? JOBBER_NAV : source === 'internal' ? INTERNAL_NAV : PRICING_NAV
+  const nav =
+    source === 'master'
+      ? MASTER_NAV.filter((item) => !item.staff || user?.is_staff)
+      : source === 'financials'
+        ? financialsNav(financeRole)
+        : source === 'jobber'
+          ? JOBBER_NAV
+          : source === 'internal'
+            ? INTERNAL_NAV
+            : PRICING_NAV
   const title = useMemo(() => {
     if (view === 'overview') {
       if (source === 'master') return 'Master Dashboard'
@@ -488,7 +509,7 @@ export function DashboardProvider({ children }) {
   }, [view, jobber, source, nav])
 
   const updatedAt =
-    source === 'jobber' || source === 'master'
+    JOBBER_BACKED.has(source)
       ? jobber?.last_synced_at
       : source === 'internal'
         ? internal?.last_success?.finished_at || internal?.sync?.finished_at
@@ -498,6 +519,7 @@ export function DashboardProvider({ children }) {
     () => ({
       source,
       view,
+      financeRole,
       jobber,
       internal,
       pricing,
@@ -537,6 +559,7 @@ export function DashboardProvider({ children }) {
     [
       source,
       view,
+      financeRole,
       jobber,
       internal,
       pricing,
@@ -566,6 +589,9 @@ export function DashboardProvider({ children }) {
     ],
   )
 
+  if (source === 'financials' && financeRole && !viewValid) {
+    return <Navigate to={dashboardPath('financials', financialsHome(financeRole))} replace />
+  }
   if (!SOURCES.has(source) || !viewValid) {
     return <Navigate to={dashboardPath('master', 'overview')} replace />
   }

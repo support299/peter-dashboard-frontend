@@ -8,4 +8,6 @@ export {
   MasterCancellations,
   MasterOperations,
   MasterQuality,
+  MasterSales,
 } from './MasterPages.jsx'
+export { MasterAlerts, MasterRules } from './ManagePages.jsx'

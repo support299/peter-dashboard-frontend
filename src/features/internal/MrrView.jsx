@@ -399,6 +399,10 @@ export function MrrView() {
 
   return (
     <div className="mrr-page">
+      <div className="notice">
+        This is the old MRR tab, kept as history. MRR is now calculated from Jobber recurring jobs on <b>Master → MRR</b>, where each booking here is
+        linked to its Jobber plan (and corrections are made with Edit). Numbers on this page are not counted anywhere else.
+      </div>
       <MrrKpis kpis={kpis} />
 
       <div className="mrr-chrome">

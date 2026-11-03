@@ -30,7 +30,7 @@ export function money(value) {
   return new Intl.NumberFormat('en-CA', {
     style: 'currency',
     currency: 'CAD',
-    maximumFractionDigits: amount >= 1000 ? 0 : 2,
+    maximumFractionDigits: Math.abs(amount) >= 1000 ? 0 : 2,
   }).format(amount)
 }
 

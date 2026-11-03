@@ -2,11 +2,18 @@ import { DIVISIONS } from './constants'
 import { usePeriod } from './periodState'
 
 const KINDS = [
+  { key: 'day', label: 'Day' },
+  { key: 'week', label: 'Week' },
   { key: 'month', label: 'Month' },
   { key: 'quarter', label: 'Quarter' },
   { key: 'year', label: 'Year' },
+  { key: 'last_3y', label: 'Last 3 years' },
+  { key: 'last_5y', label: 'Last 5 years' },
+  { key: 'lifetime', label: 'Lifetime' },
   { key: 'custom', label: 'Custom' },
 ]
+
+const PRESETS = new Set(['last_3y', 'last_5y', 'lifetime'])
 
 const COMPARE = [
   { key: 'both', label: 'Previous period + last year' },
@@ -21,7 +28,7 @@ function localToday() {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
 }
 
-export function PeriodBar({ info }) {
+export function PeriodBar({ info, hideDivision = false, actions = null }) {
   const { state, update } = usePeriod()
   const period = info?.period
   const nav = info?.navigation
@@ -49,6 +56,10 @@ export function PeriodBar({ info }) {
           <span>to</span>
           <input type="date" aria-label="To" value={state.to} onChange={(e) => update({ to: e.target.value })} />
         </div>
+      ) : PRESETS.has(state.kind) ? (
+        <div className="period-stepper">
+          <strong>{period?.label || '…'}</strong>
+        </div>
       ) : (
         <div className="period-stepper">
           <button type="button" className="ghost" disabled={!nav} onClick={() => update({ anchor: nav.previous.start })} aria-label="Previous period">
@@ -64,6 +75,15 @@ export function PeriodBar({ info }) {
           >
             Next ›
           </button>
+          {state.kind === 'day' || state.kind === 'week' ? (
+            <input
+              type="date"
+              aria-label="Go to date"
+              value={state.anchor || period?.start || ''}
+              max={localToday()}
+              onChange={(e) => e.target.value && update({ anchor: e.target.value })}
+            />
+          ) : null}
           {state.anchor ? (
             <button type="button" className="ghost tiny" onClick={() => update({ anchor: '' })}>
               Today
@@ -83,6 +103,7 @@ export function PeriodBar({ info }) {
         </select>
       </label>
 
+      {hideDivision ? null : (
       <label className="period-select">
         <span>Division</span>
         <select value={state.division} onChange={(e) => update({ division: e.target.value })}>
@@ -93,6 +114,8 @@ export function PeriodBar({ info }) {
           ))}
         </select>
       </label>
+      )}
+      {actions ? <div className="period-actions">{actions}</div> : null}
     </section>
   )
 }

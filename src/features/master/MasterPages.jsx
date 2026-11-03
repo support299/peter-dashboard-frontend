@@ -4,10 +4,12 @@ import { STATUS_LABELS } from './constants'
 import { DrillModal } from './DrillModal'
 import { formatChange, formatValue, shortDate, tone } from './format'
 import { KpiCard, KpiGrid } from './KpiCard'
-import { TrendPanel, Waterfall } from './MasterCharts'
+import { ProfitComparePanel, TrendPanel, Waterfall } from './MasterCharts'
 import { PeriodBar } from './PeriodBar'
 import { useComparisons, useFetch, useInsights, usePeriod } from './periodState'
 import { PlanEditor } from './PlanEditor'
+import { Link } from 'react-router-dom'
+import { OldTabPanel } from './ManagePages'
 import { ReasonEditor } from './ReasonEditor'
 import './master.css'
 
@@ -42,7 +44,7 @@ function useMasterPage(path) {
   return { ...result, openDrill, comparisons, shell }
 }
 
-function Panel({ title, subtitle, actions, children, className = '' }) {
+export function Panel({ title, subtitle, actions, children, className = '' }) {
   return (
     <article className={`master-panel ${className}`}>
       <header className="master-panel-head">
@@ -65,6 +67,16 @@ export function MasterOverview() {
   const against = data?.comparisons?.[data?.what_changed?.against]
   return shell(
     <>
+      {data?.alerts?.length ? (
+        <section className="alert-strip" aria-label="Alerts">
+          {data.alerts.map((alert) => (
+            <Link key={alert.id} to="/master/alerts" className="alert-pill">
+              ⚠ {alert.message}
+              {alert.note ? <small> · {alert.note}</small> : null}
+            </Link>
+          ))}
+        </section>
+      ) : null}
       <section className="scorecard">
         <KpiGrid kpis={data?.scorecard} comparisons={comparisons} onDrill={openDrill} size="lg" />
       </section>
@@ -80,7 +92,7 @@ export function MasterOverview() {
                 const change = formatChange(item.kind, item.current, item.comparison)
                 return (
                   <li key={item.key}>
-                    <button type="button" className={`change ${item.good ? 'good' : 'bad'}`} onClick={() => item.drill && openDrill(item.drill, item.label)} disabled={!item.drill}>
+                    <button type="button" className={`change ${item.direction === 'up' ? 'good' : 'bad'}`} onClick={() => item.drill && openDrill(item.drill, item.label)} disabled={!item.drill}>
                       <span className="change-arrow">{item.direction === 'up' ? '↑' : '↓'}</span>
                       <span className="change-label">{item.label}</span>
                       <b>{change?.text}</b>
@@ -113,12 +125,13 @@ export function MasterOverview() {
           />
         </div>
       </div>
+      <ProfitComparePanel />
     </>,
   )
 }
 
 // ——— Revenue & profitability ———
-function BreakdownTable({ rows = [], comparisons, mode, onRow }) {
+export function BreakdownTable({ rows = [], comparisons, mode, onRow, firstColumn = 'Line' }) {
   const total = rows.reduce((sum, row) => sum + Number(row.current || 0), 0)
   const show = (value, all) => (mode === 'pct' ? (all ? `${((Number(value || 0) / all) * 100).toFixed(1)}%` : '—') : money(value))
   const totals = Object.fromEntries(comparisons.map(({ name }) => [name, rows.reduce((s, r) => s + Number(r[name] || 0), 0)]))
@@ -126,7 +139,7 @@ function BreakdownTable({ rows = [], comparisons, mode, onRow }) {
     <table className="breakdown">
       <thead>
         <tr>
-          <th>Line</th>
+          <th>{firstColumn}</th>
           <th className="num">This period</th>
           {comparisons.map(({ name, label }) => (
             <th key={name} className="num">
@@ -145,7 +158,7 @@ function BreakdownTable({ rows = [], comparisons, mode, onRow }) {
               return (
                 <td key={name} className="num">
                   {row[name] == null ? 'n/a' : show(row[name], totals[name])}
-                  {change && row[name] ? <small className={tone('up', change.diff)}> {change.text.split(' / ')[1] || ''}</small> : null}
+                  {change && row[name] ? <small className={tone(change.diff)}> {change.text.split(' / ')[1] || ''}</small> : null}
                 </td>
               )
             })}
@@ -209,7 +222,11 @@ export function MasterRevenue() {
         <Panel title="Receivables" subtitle="Unpaid invoices right now (no history to compare)." className="span-5">
           <KpiGrid kpis={data?.receivables} comparisons={[]} onDrill={openDrill} size="sm" columns={1} />
         </Panel>
+        <Panel title="Money received" subtitle="Payments recorded in Jobber, by payment date (with tax, minus refunds)." className="span-12">
+          <KpiGrid kpis={data?.collections} comparisons={comparisons} onDrill={openDrill} size="sm" columns={2} />
+        </Panel>
       </div>
+      <ProfitComparePanel />
       <TrendPanel title="Revenue trend" metrics={[{ key: 'revenue', label: 'Revenue' }, { key: 'avg_revenue_per_visit', label: 'Avg revenue per visit' }, { key: 'gross_profit', label: 'Gross profit' }, { key: 'net_profit', label: 'Net profit' }]} />
     </>,
   )
@@ -226,20 +243,22 @@ export function MasterClients() {
         <div className="formula">
           {card('active_clients_start')}
           <span className="op">+</span>
-          {card('new_clients')}
-          <span className="op">+</span>
-          {card('returning_clients')}
+          {card('gained_clients')}
           <span className="op">−</span>
           {card('lost_clients')}
           <span className="op">=</span>
           {card('active_clients')}
         </div>
-        <div className="formula-foot">{card('net_client_growth')}</div>
+        <div className="formula-foot three">
+          {card('new_clients')}
+          {card('returning_clients')}
+          {card('net_client_growth')}
+        </div>
       </Panel>
       <Panel title="Recurring clients & jobs" subtitle="From Jobber recurring jobs. Paused clients still count as recurring clients.">
         <KpiGrid kpis={data?.recurring} comparisons={comparisons} onDrill={openDrill} />
       </Panel>
-      <Panel title="Sales funnel" subtitle="Leads → Quotes → Accepted → First clean → Recurring.">
+      <Panel title="Sales funnel" subtitle="Leads from the Pricing Calculator and Jobber requests. The full funnel is on the Sales & leads page.">
         <KpiGrid kpis={data?.sales} comparisons={comparisons} onDrill={openDrill} size="sm" />
       </Panel>
       <TrendPanel
@@ -247,6 +266,8 @@ export function MasterClients() {
         metrics={[
           { key: 'active_recurring_clients', label: 'Active recurring clients' },
           { key: 'new_clients', label: 'New clients' },
+          { key: 'new_recurring_jobs', label: 'New recurring jobs' },
+          { key: 'cancelled_recurring_jobs', label: 'Cancelled recurring jobs' },
         ]}
       />
     </>,
@@ -369,6 +390,7 @@ export function MasterMrr() {
       </Panel>
       <KpiGrid kpis={data?.cards} comparisons={comparisons} onDrill={openDrill} />
       <PlansTable onEdit={setEditing} version={version} />
+      <OldTabPanel version={version} onChanged={reload} />
       <TrendPanel title="MRR trend" metrics={[{ key: 'mrr', label: 'MRR' }, { key: 'active_recurring_clients', label: 'Active recurring clients' }]} />
       {editing ? (
         <PlanEditor
@@ -501,13 +523,106 @@ export function MasterCancellations() {
   )
 }
 
+// ——— Sales & leads ———
+function Funnel({ cards = [], onDrill }) {
+  const steps = cards.filter((card) => card.key !== 'leads')
+  const top = Number(steps[0]?.current || 0)
+  if (!steps.length || steps[0].current == null) return <p className="muted">No leads in this period.</p>
+  return (
+    <ol className="funnel">
+      {steps.map((card, index) => {
+        const value = Number(card.current || 0)
+        const width = top && value ? Math.max((value / top) * 100, 2) : 0
+        const previous = index ? Number(steps[index - 1].current || 0) : null
+        return (
+          <li key={card.key}>
+            <button type="button" onClick={() => card.drill && onDrill(card.drill, card.label)}>
+              <span className="funnel-label">{card.label}</span>
+              <span className="funnel-bar">
+                <i style={{ width: `${width}%` }} />
+              </span>
+              <b>{number(value)}</b>
+              <small className="muted">{index && previous ? `${Math.round((value / previous) * 100)}% of previous step` : ''}</small>
+            </button>
+          </li>
+        )
+      })}
+    </ol>
+  )
+}
+
+export function MasterSales() {
+  const { data, openDrill, comparisons, shell } = useMasterPage('/api/insights/sales/')
+  return shell(
+    <>
+      {data?.sync_notes?.length ? <div className="notice">{data.sync_notes.join(' ')}</div> : null}
+      {data?.division_note ? <p className="period-note muted">{data.division_note}</p> : null}
+      <div className="master-grid">
+        <Panel
+          title="Funnel"
+          subtitle="New prospects (not clients yet) whose lead date is in this period, and how far they got. Click a step to see the people."
+          className="span-7"
+        >
+          <Funnel cards={data?.funnel} onDrill={openDrill} />
+        </Panel>
+        <Panel title="Conversion" subtitle="Recent periods keep improving as prospects book their first cleaning." className="span-5">
+          <KpiGrid kpis={data?.rates} comparisons={comparisons} onDrill={openDrill} size="sm" columns={1} />
+        </Panel>
+      </div>
+      <KpiGrid kpis={data?.funnel} comparisons={comparisons} onDrill={openDrill} size="sm" />
+      <Panel title="Quotes sent" subtitle="Every quote counts here, even several for one person. Leads above count each person once.">
+        <KpiGrid kpis={data?.quotes} comparisons={comparisons} onDrill={openDrill} size="sm" columns={2} />
+      </Panel>
+      <Panel title="Where leads come from" subtitle="Calculator: answer to “How did you hear about us?”. Jobber requests: the request source.">
+        {data?.sources?.length ? (
+          <table className="breakdown">
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th className="num">Leads</th>
+                <th className="num">New prospects</th>
+                <th className="num">Became clients</th>
+                <th className="num">Conversion</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.sources.map((row) => (
+                <tr key={row.label}>
+                  <td>{row.label}</td>
+                  <td className="num strong">{number(row.leads)}</td>
+                  <td className="num">{number(row.prospects)}</td>
+                  <td className="num">{number(row.won)}</td>
+                  <td className="num">{row.conversion == null ? '—' : `${Number(row.conversion).toFixed(1)}%`}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="muted">No leads in this period.</p>
+        )}
+      </Panel>
+      <Panel title="Marketing cost" subtitle="Marketing spend from Financials (category “Marketing and advertising”).">
+        <KpiGrid kpis={data?.marketing} comparisons={comparisons} onDrill={openDrill} size="sm" />
+      </Panel>
+      <TrendPanel
+        title="Lead trend"
+        metrics={[
+          { key: 'leads', label: 'Leads' },
+          { key: 'lead_conversion', label: 'Lead → client conversion %' },
+          { key: 'payments_received', label: 'Payments received' },
+        ]}
+      />
+    </>,
+  )
+}
+
 // ——— Quality ———
 export function MasterQuality() {
   const { data, openDrill, comparisons, shell } = useMasterPage('/api/insights/quality/')
   return shell(
     <>
       <Panel title="Touch-ups / redos" subtitle="Visits with “Touch-up” or “Touch up” in the Jobber title. Rate per 100 completed visits.">
-        <KpiGrid kpis={data?.redos} comparisons={comparisons} onDrill={openDrill} columns={2} />
+        <KpiGrid kpis={data?.redos} comparisons={comparisons} onDrill={openDrill} />
       </Panel>
       <Panel title="Hub feedback" subtitle="“How are we doing?” and “Review your recent experience!” forms. Participation = responses per completed visit.">
         <KpiGrid kpis={data?.feedback} comparisons={comparisons} onDrill={openDrill} size="sm" />
@@ -536,6 +651,7 @@ export function MasterQuality() {
       <Panel title="Google reviews" subtitle="Collected by the Hub through UMB / GoHighLevel. Rating and total are all-time up to the end of the period.">
         <KpiGrid kpis={data?.google} comparisons={comparisons} onDrill={openDrill} size="sm" />
       </Panel>
+      <TeamLeaderTable rows={data?.team_leaders} />
       <EmployeeTable title="By cleaner" subtitle="Hub reviews they were on and complaints they were responsible for, this period." rows={data?.people} />
       <TrendPanel
         title="Quality trend"
@@ -547,6 +663,46 @@ export function MasterQuality() {
         ]}
       />
     </>,
+  )
+}
+
+function TeamLeaderTable({ rows = [] }) {
+  return (
+    <Panel
+      title="By team leader"
+      subtitle="A visit belongs to the one team leader assigned to it in Jobber. Each person's daily hours are split across their visits by scheduled length. Complaints show a leader only when one was picked on the form (new complaints). Hours only go back to the first Hub hours, so long periods show fewer hours than visits suggest."
+    >
+      {rows.length ? (
+        <div className="drill-table-wrap">
+          <table className="drill-table">
+            <thead>
+              <tr>
+                <th>Team leader</th>
+                <th className="k-count">Completed visits</th>
+                <th className="k-count">Hours</th>
+                <th className="k-count">Complaints</th>
+                <th className="k-count">Touch-ups</th>
+                <th className="k-currency">Touch-up cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.key || 'none'}>
+                  <td>{row.team_leader}</td>
+                  <td className="k-count">{number(row.visits)}</td>
+                  <td className="k-count">{row.hours == null ? '—' : Number(row.hours).toFixed(2)}</td>
+                  <td className="k-count">{number(row.complaints)}</td>
+                  <td className="k-count">{number(row.touch_ups)}</td>
+                  <td className="k-currency">{money(row.touch_up_cost)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="muted">Nothing recorded for this period.</p>
+      )}
+    </Panel>
   )
 }
 
@@ -564,6 +720,7 @@ function EmployeeTable({ title, subtitle, rows = [] }) {
                 <th className="k-count">Reviews</th>
                 <th className="k-count">Avg rating</th>
                 <th className="k-count">Complaints</th>
+                <th className="k-count">Late arrivals</th>
               </tr>
             </thead>
             <tbody>
@@ -575,6 +732,7 @@ function EmployeeTable({ title, subtitle, rows = [] }) {
                   <td className="k-count">{number(row.reviews)}</td>
                   <td className="k-count">{row.avg_rating == null ? '—' : Number(row.avg_rating).toFixed(2)}</td>
                   <td className="k-count">{number(row.complaints)}</td>
+                  <td className="k-count">{number(row.late)}</td>
                 </tr>
               ))}
             </tbody>
@@ -602,15 +760,23 @@ export function MasterOperations() {
         <KpiGrid kpis={data?.work} comparisons={comparisons} onDrill={openDrill} />
       </Panel>
       <div className="master-grid">
-        <Panel title="People" subtitle="Absences from Hub leave requests." className="span-7">
+        <Panel title="People" subtitle="Absences from Hub leave requests. Late arrivals from the Hub's New Absence form." className="span-7">
           <KpiGrid kpis={data?.people} comparisons={comparisons} onDrill={openDrill} size="sm" />
         </Panel>
         <Panel title="Payroll" subtitle="Entered per pay run in Financials." className="span-5">
           <KpiGrid kpis={data?.payroll} comparisons={comparisons} onDrill={openDrill} size="sm" columns={1} />
         </Panel>
       </div>
+      <TeamLeaderTable rows={data?.team_leaders} />
       <EmployeeTable title="Hours by employee" subtitle="This period, from Jobber timesheets." rows={data?.employees} />
-      <TrendPanel title="Labour trend" metrics={[{ key: 'labour_hours', label: 'Labour hours' }, { key: 'visits_completed', label: 'Completed visits' }]} />
+      <TrendPanel
+        title="Labour trend"
+        metrics={[
+          { key: 'labour_hours', label: 'Labour hours' },
+          { key: 'visits_completed', label: 'Completed visits' },
+          { key: 'late_arrivals', label: 'Late arrivals' },
+        ]}
+      />
     </>,
   )
 }

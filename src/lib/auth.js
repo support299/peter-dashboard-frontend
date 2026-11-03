@@ -91,7 +91,8 @@ export async function refreshAccessToken() {
 /** Authenticated fetch — cookies carry JWT; returns Response for readJson. */
 export async function authFetch(path, options = {}) {
   const headers = new Headers(options.headers || {})
-  if (options.body && !headers.has('Content-Type')) {
+  // FormData (file uploads) sets its own multipart Content-Type.
+  if (options.body && !headers.has('Content-Type') && !(options.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json')
   }
 

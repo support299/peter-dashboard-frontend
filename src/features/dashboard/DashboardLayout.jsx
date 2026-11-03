@@ -15,15 +15,32 @@ const MASTER_SUBTITLES = {
   revenue: 'Revenue by type and division, profitability, top clients and receivables.',
   clients: 'Are we gaining or losing clients, and are recurring clients growing?',
   mrr: 'Monthly recurring revenue: what we added, what we lost, and paused clients.',
+  sales: 'Leads from the calculator and Jobber, how many become clients, and what each one costs.',
   cancellations: 'How much revenue cancellations cost us, and why they happen.',
   operations: 'Hours, overtime, revenue per labour hour and absences.',
   quality: 'Touch-ups, feedback, complaints and reviews.',
+  alerts: 'Set limits on any number. Crossed limits are flagged on the cards and the CEO view.',
+  rules: 'How Jobber line items are sorted into divisions and revenue types.',
+}
+
+const FINANCIALS_SUBTITLES = {
+  expenses: 'What we spend, by group, category and division, compared with earlier periods.',
+  entries: 'Add, find and correct expenses. Attach a photo or PDF of the receipt.',
+  payroll: 'One entry per PayEvo pay run: cleaning staff and office, counted in the pay-date month.',
+  recurring: 'Rent, insurance, software… Each charge is created on its due date for you to verify.',
+  totals: 'Monthly totals by category, reconciliation, and CSV / Excel import.',
+  pnl: 'Revenue from Jobber minus expenses from Financials.',
+  cash: 'Bank balances, credit cards and loans, updated by hand.',
+  reports: 'Month-by-month profit & loss to download or print.',
+  review: 'Check each month before marking it reviewed. Reviewed months are locked.',
+  settings: 'Expense categories and who can use Financials.',
 }
 
 function DashboardShell() {
   const {
     source,
     view,
+    financeRole,
     jobber,
     filters,
     filterOptions,
@@ -54,7 +71,7 @@ function DashboardShell() {
   }
 
   const layoutClass =
-    source === 'internal' ? 'layout internal' : source === 'pricing' ? 'layout pricing' : source === 'jobber' || source === 'master' ? 'layout jobber' : 'layout'
+    source === 'internal' ? 'layout internal' : source === 'pricing' ? 'layout pricing' : ['jobber', 'master', 'financials'].includes(source) ? 'layout jobber' : 'layout'
 
   return (
     <div className="app">
@@ -69,6 +86,8 @@ function DashboardShell() {
             <p>
               {source === 'master'
                 ? 'Master Dashboard'
+                : source === 'financials'
+                ? 'Financials'
                 : source === 'jobber'
                 ? jobber?.account_name || 'Jobber'
                 : source === 'internal'
@@ -78,7 +97,7 @@ function DashboardShell() {
           </div>
         </div>
 
-        <SourceToggle source={source} onChange={switchSource} />
+        <SourceToggle source={source} onChange={switchSource} showFinancials={Boolean(financeRole)} />
 
         <div className="topbar-actions">
           <span className="hint">
@@ -88,9 +107,9 @@ function DashboardShell() {
             className="ghost"
             type="button"
             onClick={refresh}
-            disabled={busy || syncing || ((source === 'jobber' || source === 'master') && !connected)}
+            disabled={busy || syncing || (['jobber', 'master', 'financials'].includes(source) && !connected)}
           >
-            {syncing ? 'Refreshing…' : source === 'jobber' || source === 'master' ? 'Refresh' : source === 'internal' ? 'Sync Internal' : 'Sync Pricing'}
+            {syncing ? 'Refreshing…' : ['jobber', 'master', 'financials'].includes(source) ? 'Refresh' : source === 'internal' ? 'Sync Internal' : 'Sync Pricing'}
           </button>
           <ProfileMenu
             user={user}
@@ -126,12 +145,13 @@ function DashboardShell() {
 
             <section className={`hero ${source !== 'jobber' ? 'hero-internal' : ''}`}>
               <div>
-                {view !== 'overview' || detail ? (
+                {(view !== 'overview' && source !== 'financials') || detail ? (
                   <button className="back" type="button" onClick={goBack}>
                     ← Back
                   </button>
                 ) : null}
                 {source === 'master' ? <p className="hero-kicker jobber-kicker">Management</p> : null}
+                {source === 'financials' ? <p className="hero-kicker jobber-kicker">Financials</p> : null}
                 {source === 'jobber' && view === 'overview' ? <p className="hero-kicker jobber-kicker">Jobber operations</p> : null}
                 {source === 'internal' ? <p className="hero-kicker">Admin internal</p> : null}
                 {source === 'pricing' ? <p className="hero-kicker pricing-kicker">Pricing calculator</p> : null}
@@ -139,6 +159,8 @@ function DashboardShell() {
                 <p className="muted">
                   {source === 'master'
                     ? MASTER_SUBTITLES[view]
+                    : source === 'financials'
+                    ? FINANCIALS_SUBTITLES[view]
                     : view === 'overview'
                     ? source === 'jobber'
                       ? 'Click any number or chart to see the work behind it.'
