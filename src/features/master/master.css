@@ -1,5 +1,7 @@
 .master {
   display: grid;
+  /* One column that never grows past the screen: a wide table scrolls inside its panel instead. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
   --good: #047857;
   --good-soft: #ecfdf5;
@@ -514,6 +516,11 @@
 }
 
 /* ——— Tables ——— */
+.breakdown-wrap {
+  min-width: 0;
+  overflow-x: auto;
+}
+
 .breakdown {
   width: 100%;
   border-collapse: collapse;
@@ -1016,6 +1023,21 @@
 
   .period-note-long {
     display: none;
+  }
+
+  .breakdown {
+    font-size: 13px;
+  }
+
+  .breakdown th,
+  .breakdown td {
+    padding: 7px 8px;
+  }
+
+  /* ⓘ bubbles stay inside their card instead of opening past the screen edge. */
+  .kpi-info-bubble {
+    min-width: 0;
+    font-size: 12px;
   }
 
   .period-note-short {

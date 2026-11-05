@@ -3510,4 +3510,11 @@
     padding: 7px 14px;
     white-space: nowrap;
   }
+
+  /* Wide tables (Jobber, Internal, Pricing lists) scroll sideways instead of running off the screen. */
+  .card:has(table.table),
+  .internal-list:has(table.table),
+  .pricing-panel:has(table.table) {
+    overflow-x: auto;
+  }
 }

@@ -140,45 +140,47 @@ export function BreakdownTable({ rows = [], comparisons, mode, onRow, firstColum
   const show = (value, all) => (mode === 'pct' ? (all ? `${((Number(value || 0) / all) * 100).toFixed(1)}%` : '—') : money(value))
   const totals = Object.fromEntries(comparisons.map(({ name }) => [name, rows.reduce((s, r) => s + Number(r[name] || 0), 0)]))
   return (
-    <table className="breakdown">
-      <thead>
-        <tr>
-          <th>{firstColumn}</th>
-          <th className="num">This period</th>
-          {comparisons.map(({ name, label }) => (
-            <th key={name} className="num">
-              {label}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => (
-          <tr key={row.key} onClick={() => onRow?.(row)} className={onRow ? 'clickable' : ''}>
-            <td>{row.label}</td>
-            <td className="num strong">{show(row.current, total)}</td>
-            {comparisons.map(({ name }) => {
-              const change = mode === 'pct' ? null : formatChange('currency', row.current, row[name])
-              return (
-                <td key={name} className="num">
-                  {row[name] == null ? 'n/a' : show(row[name], totals[name])}
-                  {change && row[name] ? <small className={tone(change.diff)}> {change.text.split(' / ')[1] || ''}</small> : null}
-                </td>
-              )
-            })}
+    <div className="breakdown-wrap">
+      <table className="breakdown">
+        <thead>
+          <tr>
+            <th>{firstColumn}</th>
+            <th className="num">This period</th>
+            {comparisons.map(({ name, label }) => (
+              <th key={name} className="num">
+                {label}
+              </th>
+            ))}
           </tr>
-        ))}
-        <tr className="total">
-          <td>Total</td>
-          <td className="num strong">{mode === 'pct' ? '100%' : money(total)}</td>
-          {comparisons.map(({ name }) => (
-            <td key={name} className="num">
-              {mode === 'pct' ? '100%' : money(totals[name])}
-            </td>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.key} onClick={() => onRow?.(row)} className={onRow ? 'clickable' : ''}>
+              <td>{row.label}</td>
+              <td className="num strong">{show(row.current, total)}</td>
+              {comparisons.map(({ name }) => {
+                const change = mode === 'pct' ? null : formatChange('currency', row.current, row[name])
+                return (
+                  <td key={name} className="num">
+                    {row[name] == null ? 'n/a' : show(row[name], totals[name])}
+                    {change && row[name] ? <small className={tone(change.diff)}> {change.text.split(' / ')[1] || ''}</small> : null}
+                  </td>
+                )
+              })}
+            </tr>
           ))}
-        </tr>
-      </tbody>
-    </table>
+          <tr className="total">
+            <td>Total</td>
+            <td className="num strong">{mode === 'pct' ? '100%' : money(total)}</td>
+            {comparisons.map(({ name }) => (
+              <td key={name} className="num">
+                {mode === 'pct' ? '100%' : money(totals[name])}
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
   )
 }
 
@@ -210,18 +212,20 @@ export function MasterRevenue() {
         </Panel>
         <Panel title="Customer concentration" subtitle="How much revenue depends on the biggest clients." className="span-7">
           <KpiGrid kpis={data?.concentration} comparisons={comparisons} onDrill={openDrill} size="sm" columns={2} />
-          <table className="breakdown compact">
-            <tbody>
-              {(data?.top_clients || []).map((row, index) => (
-                <tr key={row.client_id ?? index}>
-                  <td>
-                    {index + 1}. {row.client}
-                  </td>
-                  <td className="num">{money(row.revenue)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="breakdown-wrap">
+            <table className="breakdown compact">
+              <tbody>
+                {(data?.top_clients || []).map((row, index) => (
+                  <tr key={row.client_id ?? index}>
+                    <td>
+                      {index + 1}. {row.client}
+                    </td>
+                    <td className="num">{money(row.revenue)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Panel>
         <Panel title="Receivables" subtitle="Unpaid invoices right now (no history to compare)." className="span-5">
           <KpiGrid kpis={data?.receivables} comparisons={[]} onDrill={openDrill} size="sm" columns={1} />
@@ -440,34 +444,36 @@ export function MasterCancellations() {
           </ul>
         </Panel>
         <Panel title="Cancellation reasons" subtitle="Cancelled visits by reason." className="span-7">
-          <table className="breakdown">
-            <thead>
-              <tr>
-                <th>Reason</th>
-                <th className="num">Visits</th>
-                <th className="num">Value</th>
-                {comparisons.map(({ name, label }) => (
-                  <th key={name} className="num">
-                    {label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {(data?.reasons || []).filter((r) => r.count || comparisons.some(({ name }) => r[name])).map((row) => (
-                <tr key={row.key || 'none'}>
-                  <td>{row.label}</td>
-                  <td className="num strong">{number(row.count)}</td>
-                  <td className="num">{money(row.value)}</td>
-                  {comparisons.map(({ name }) => (
-                    <td key={name} className="num">
-                      {row[name] == null ? 'n/a' : number(row[name])}
-                    </td>
+          <div className="breakdown-wrap">
+            <table className="breakdown">
+              <thead>
+                <tr>
+                  <th>Reason</th>
+                  <th className="num">Visits</th>
+                  <th className="num">Value</th>
+                  {comparisons.map(({ name, label }) => (
+                    <th key={name} className="num">
+                      {label}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {(data?.reasons || []).filter((r) => r.count || comparisons.some(({ name }) => r[name])).map((row) => (
+                  <tr key={row.key || 'none'}>
+                    <td>{row.label}</td>
+                    <td className="num strong">{number(row.count)}</td>
+                    <td className="num">{money(row.value)}</td>
+                    {comparisons.map(({ name }) => (
+                      <td key={name} className="num">
+                        {row[name] == null ? 'n/a' : number(row[name])}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Panel>
       </div>
       <Panel title="Cancellations this period" subtitle="Pick a reason for each one. It saves straight away.">
@@ -503,21 +509,23 @@ export function MasterCancellations() {
       </Panel>
       <Panel title="Why recurring clients cancel" subtitle="From the Hub's Service Cancellation Form, by date submitted.">
         {data?.service_reasons?.length ? (
-          <table className="breakdown">
-            <tbody>
-              {data.service_reasons.map((row) => (
-                <tr key={row.label} className="clickable" onClick={() => openDrill('service_cancellations', 'Service cancellation forms')}>
-                  <td>
-                    <strong>{row.label}</strong>
-                    {row.details.length ? (
-                      <small className="muted"> · {row.details.map((d) => `${d.label} (${d.count})`).join(', ')}</small>
-                    ) : null}
-                  </td>
-                  <td className="num strong">{number(row.count)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="breakdown-wrap">
+            <table className="breakdown">
+              <tbody>
+                {data.service_reasons.map((row) => (
+                  <tr key={row.label} className="clickable" onClick={() => openDrill('service_cancellations', 'Service cancellation forms')}>
+                    <td>
+                      <strong>{row.label}</strong>
+                      {row.details.length ? (
+                        <small className="muted"> · {row.details.map((d) => `${d.label} (${d.count})`).join(', ')}</small>
+                      ) : null}
+                    </td>
+                    <td className="num strong">{number(row.count)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <p className="muted">No cancellation forms this period.</p>
         )}
@@ -579,28 +587,30 @@ export function MasterSales() {
       </Panel>
       <Panel title="Where leads come from" subtitle="Calculator: answer to “How did you hear about us?”. Jobber requests: the request source.">
         {data?.sources?.length ? (
-          <table className="breakdown">
-            <thead>
-              <tr>
-                <th>Source</th>
-                <th className="num">Leads</th>
-                <th className="num">New prospects</th>
-                <th className="num">Became clients</th>
-                <th className="num">Conversion</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.sources.map((row) => (
-                <tr key={row.label}>
-                  <td>{row.label}</td>
-                  <td className="num strong">{number(row.leads)}</td>
-                  <td className="num">{number(row.prospects)}</td>
-                  <td className="num">{number(row.won)}</td>
-                  <td className="num">{row.conversion == null ? '—' : `${Number(row.conversion).toFixed(1)}%`}</td>
+          <div className="breakdown-wrap">
+            <table className="breakdown">
+              <thead>
+                <tr>
+                  <th>Source</th>
+                  <th className="num">Leads</th>
+                  <th className="num">New prospects</th>
+                  <th className="num">Became clients</th>
+                  <th className="num">Conversion</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {data.sources.map((row) => (
+                  <tr key={row.label}>
+                    <td>{row.label}</td>
+                    <td className="num strong">{number(row.leads)}</td>
+                    <td className="num">{number(row.prospects)}</td>
+                    <td className="num">{number(row.won)}</td>
+                    <td className="num">{row.conversion == null ? '—' : `${Number(row.conversion).toFixed(1)}%`}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <p className="muted">No leads in this period.</p>
         )}
@@ -637,16 +647,18 @@ export function MasterQuality() {
         </Panel>
         <Panel title="Complaint types" subtitle="This period." className="span-5">
           {data?.complaint_types?.length ? (
-            <table className="breakdown">
-              <tbody>
-                {data.complaint_types.map((row) => (
-                  <tr key={row.label}>
-                    <td>{row.label}</td>
-                    <td className="num strong">{number(row.count)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="breakdown-wrap">
+              <table className="breakdown">
+                <tbody>
+                  {data.complaint_types.map((row) => (
+                    <tr key={row.label}>
+                      <td>{row.label}</td>
+                      <td className="num strong">{number(row.count)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           ) : (
             <p className="muted">No complaints this period.</p>
           )}
