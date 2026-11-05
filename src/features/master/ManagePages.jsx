@@ -133,7 +133,7 @@ export function MasterAlerts() {
         )}
       </Section>
       {canEdit ? (
-        <Section title="Add an alert" subtitle="Examples: Cancelled visits goes above 20 · Net profit margin % goes below 10 · New clients falls by more than 25% vs last year · Churned MRR is higher than New MRR.">
+        <Section title="Add an alert" subtitle="Examples: Cancelled visits goes above 20 · Net profit margin % goes below 10 · New clients falls by more than 25% vs last year · Lost MRR is higher than New MRR.">
           <form
             className="alert-form"
             onSubmit={(e) => {
