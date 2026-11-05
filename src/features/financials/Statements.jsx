@@ -69,7 +69,7 @@ export function FinancePnl() {
                           <td key={name} className="num">
                             <Amount kind={line.kind} value={line[name]} />
                             {change && line[name] != null && line.current != null ? (
-                              <small className={tone(change.diff)}> {change.text.split(' / ')[1] || ''}</small>
+                              <small className={tone(change.diff, line.line === 'cost' ? 'down' : 'up')}> {change.text.split(' / ')[1] || ''}</small>
                             ) : null}
                           </td>
                         )

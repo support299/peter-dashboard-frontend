@@ -96,7 +96,7 @@ export function MasterOverview() {
                 const change = formatChange(item.kind, item.current, item.comparison)
                 return (
                   <li key={item.key}>
-                    <button type="button" className={`change ${item.direction === 'up' ? 'good' : 'bad'}`} onClick={() => item.drill && openDrill(item.drill, item.label)} disabled={!item.drill}>
+                    <button type="button" className={`change ${item.good ? 'good' : 'bad'}`} onClick={() => item.drill && openDrill(item.drill, item.label)} disabled={!item.drill}>
                       <span className="change-arrow">{item.direction === 'up' ? '↑' : '↓'}</span>
                       <span className="change-label">{item.label}</span>
                       <b>{change?.text}</b>
@@ -135,7 +135,7 @@ export function MasterOverview() {
 }
 
 // ——— Revenue & profitability ———
-export function BreakdownTable({ rows = [], comparisons, mode, onRow, firstColumn = 'Line' }) {
+export function BreakdownTable({ rows = [], comparisons, mode, onRow, firstColumn = 'Line', better = 'up' }) {
   const total = rows.reduce((sum, row) => sum + Number(row.current || 0), 0)
   const show = (value, all) => (mode === 'pct' ? (all ? `${((Number(value || 0) / all) * 100).toFixed(1)}%` : '—') : money(value))
   const totals = Object.fromEntries(comparisons.map(({ name }) => [name, rows.reduce((s, r) => s + Number(r[name] || 0), 0)]))
@@ -163,7 +163,7 @@ export function BreakdownTable({ rows = [], comparisons, mode, onRow, firstColum
                 return (
                   <td key={name} className="num">
                     {row[name] == null ? 'n/a' : show(row[name], totals[name])}
-                    {change && row[name] ? <small className={tone(change.diff)}> {change.text.split(' / ')[1] || ''}</small> : null}
+                    {change && row[name] ? <small className={tone(change.diff, better)}> {change.text.split(' / ')[1] || ''}</small> : null}
                   </td>
                 )
               })}

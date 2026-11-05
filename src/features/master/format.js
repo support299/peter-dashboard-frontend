@@ -23,12 +23,12 @@ export function formatChange(kind, current, comparison) {
 }
 
 /**
- * Colour of a change: increases green, decreases red (client preference, Oct 2026),
- * even where a decrease is good news (e.g. fewer cancellations).
+ * Colour of a change: green for good news, red for bad (Peter, Nov 2026). `better` is the
+ * direction that's good: "up" for revenue or clients, "down" for costs, cancellations, Lost MRR.
  */
-export function tone(diff) {
+export function tone(diff, better = 'up') {
   if (!diff) return 'flat'
-  return diff > 0 ? 'good' : 'bad'
+  return (diff > 0) === (better !== 'down') ? 'good' : 'bad'
 }
 
 export function shortDate(value) {

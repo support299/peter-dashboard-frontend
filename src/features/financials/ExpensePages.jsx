@@ -79,10 +79,10 @@ export function FinanceExpenses() {
           ) : null}
         </Panel>
         <Panel title="By division" subtitle="Shared = costs for the whole company (rent, office payroll…)." className="span-7">
-          <BreakdownTable rows={data?.divisions} comparisons={comparisons} mode="amount" firstColumn="Division" />
+          <BreakdownTable rows={data?.divisions} comparisons={comparisons} mode="amount" firstColumn="Division" better="down" />
         </Panel>
         <Panel title="By category" subtitle="Share is of total expenses." className="span-12">
-          <BreakdownTable rows={counted} comparisons={comparisons} mode="amount" firstColumn="Category" />
+          <BreakdownTable rows={counted} comparisons={comparisons} mode="amount" firstColumn="Category" better="down" />
         </Panel>
         {excluded.length ? (
           <Panel

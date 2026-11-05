@@ -42,8 +42,8 @@ function CompareRow({ kpi, name, label }) {
     <div className="kpi-row" title={`${title}${exact ? `: ${exact.text}` : ''}`}>
       <RowName name={name} label={label} />
       <span className="kpi-row-value">{formatValue(kpi.kind, other)}</span>
-      <span className={`kpi-delta ${tone(delta.diff)}`}>{delta.text}</span>
-      {kpi.kind === 'currency' && exact && delta.diff ? <span className={`kpi-row-diff ${tone(delta.diff)}`}>{exact.text.split(' / ')[0]}</span> : null}
+      <span className={`kpi-delta ${tone(delta.diff, kpi.better)}`}>{delta.text}</span>
+      {kpi.kind === 'currency' && exact && delta.diff ? <span className={`kpi-row-diff ${tone(delta.diff, kpi.better)}`}>{exact.text.split(' / ')[0]}</span> : null}
     </div>
   )
 }

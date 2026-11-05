@@ -193,7 +193,7 @@ function BalanceForm({ account, onClose, onSaved }) {
   )
 }
 
-function Position({ label, value, others, comparisons }) {
+function Position({ label, value, others, comparisons, better = 'up' }) {
   return (
     <div className="kpi-card size-md">
       <span className="kpi-label">{label}</span>
@@ -206,7 +206,7 @@ function Position({ label, value, others, comparisons }) {
             <div key={name} className="kpi-row" title={`End of ${compareLabel}`}>
               <RowName name={name} label={compareLabel} />
               <span className="kpi-row-value">{other == null ? '—' : money(other)}</span>
-              <span className={`kpi-delta ${change ? tone(change.diff) : 'flat'}`}>{change ? change.text.split(' / ')[0] : 'n/a'}</span>
+              <span className={`kpi-delta ${change ? tone(change.diff, better) : 'flat'}`}>{change ? change.text.split(' / ')[0] : 'n/a'}</span>
             </div>
           )
         })}
@@ -294,7 +294,7 @@ export function FinanceCash() {
       <div className="kpi-grid" style={{ '--kpi-cols': 4 }}>
         <Position label="Opening cash" value={totals.opening?.cash} comparisons={[]} />
         <Position label="Closing cash" value={totals.balance?.cash} others={pick('cash')} comparisons={comparisons} />
-        <Position label="Debt (cards, loans, lines of credit)" value={totals.balance?.debt} others={pick('debt')} comparisons={comparisons} />
+        <Position label="Debt (cards, loans, lines of credit)" value={totals.balance?.debt} others={pick('debt')} comparisons={comparisons} better="down" />
         <Position label="Net position (cash − debt)" value={totals.balance?.net} others={pick('net')} comparisons={comparisons} />
       </div>
       <p className="period-note muted">
