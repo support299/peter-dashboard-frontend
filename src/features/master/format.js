@@ -44,3 +44,9 @@ export function monthName(value) {
   const [y, m] = String(value).split('-').map(Number)
   return new Date(y, (m || 1) - 1, 1).toLocaleDateString('en-CA', { month: 'short', year: 'numeric' })
 }
+
+/** "November 2026 (Nov 1–5, 2026)" → { name: "November 2026", dates: "Nov 1–5, 2026" }. */
+export function splitLabel(label = '') {
+  const match = /^(.*) \(([^()]*)\)$/.exec(label)
+  return match ? { name: match[1], dates: match[2] } : { name: label, dates: '' }
+}

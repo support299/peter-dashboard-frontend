@@ -148,6 +148,17 @@
   gap: 2px;
 }
 
+/* Who is signed in: shown in the menu on phones, where the button is just the avatar. */
+.profile-dropdown-who {
+  display: none;
+  margin: 0;
+  padding: 8px 10px 6px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
 .profile-dropdown button {
   border: 0;
   background: transparent;
@@ -3402,3 +3413,101 @@
   }
 }
 
+
+/* ——— Phones: logo + sync/Refresh/Account on one row, section tabs in one scrollable row under it ——— */
+@media (max-width: 640px) {
+  .topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "brand actions"
+      "tabs tabs";
+    gap: 10px 8px;
+    padding: 10px 14px;
+  }
+
+  .brand {
+    grid-area: brand;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .brand .mark {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    font-size: 14px;
+  }
+
+  .brand h1 {
+    font-size: 16px;
+  }
+
+  .brand p {
+    overflow: hidden;
+    font-size: 11px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-actions {
+    grid-area: actions;
+    justify-self: end;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .topbar-actions .hint {
+    max-width: 64px;
+    font-size: 10.5px;
+    line-height: 1.2;
+    text-align: right;
+  }
+
+  .topbar-actions > .ghost {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  /* Account: just the avatar; name and email are in its menu. */
+  .profile-trigger {
+    padding: 3px;
+    gap: 0;
+    border-radius: 10px;
+  }
+
+  .profile-meta,
+  .profile-caret {
+    display: none;
+  }
+
+  .profile-dropdown-who {
+    display: block;
+  }
+
+  .profile-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+  }
+
+  .source-toggle {
+    grid-area: tabs;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    justify-self: stretch;
+    overflow-x: auto;
+    border-radius: 12px;
+    scrollbar-width: none;
+  }
+
+  .source-toggle::-webkit-scrollbar {
+    display: none;
+  }
+
+  .source-toggle button {
+    flex: 0 0 auto;
+    padding: 7px 14px;
+    white-space: nowrap;
+  }
+}

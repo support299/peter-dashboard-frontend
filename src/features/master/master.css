@@ -68,6 +68,15 @@
   font-size: 16px;
 }
 
+.period-note-short {
+  display: none;
+}
+
+.period-label small {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
 .period-custom {
   display: inline-flex;
   align-items: center;
@@ -870,27 +879,147 @@
 }
 
 @media (max-width: 640px) {
+  /* Page title: plain text, no card. "Last sync" is already in the top bar. */
+  .hero {
+    display: block;
+    margin-bottom: 4px;
+    padding: 0 2px;
+    background: none;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .hero .hero-kicker,
+  .hero .hero-meta,
+  .hero > div > p.muted {
+    display: none;
+  }
+
+  .hero h2 {
+    margin: 0;
+    font-size: 22px;
+  }
+
+  /* Period bar: kinds, then ‹ period ›, then compare + division side by side. */
   .period-bar {
     position: static;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
     min-width: 0;
+    padding: 8px;
+    border-radius: 14px;
+  }
+
+  .period-kinds,
+  .period-stepper,
+  .period-custom,
+  .period-actions {
+    grid-column: 1 / -1;
   }
 
   /* Day … Custom scroll sideways instead of pushing the page wider than the phone. */
   .period-kinds {
+    display: flex;
     max-width: 100%;
     overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .period-kinds::-webkit-scrollbar {
+    display: none;
   }
 
   .period-kinds button {
+    flex: 0 0 auto;
+    padding: 6px 10px;
     white-space: nowrap;
   }
 
   .period-stepper {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 36px;
+    align-items: center;
+    gap: 6px;
   }
 
   .period-stepper strong {
     min-width: 0;
+    font-size: 16px;
+    line-height: 1.2;
+  }
+
+  /* "November 2026" with its dates small underneath. */
+  .period-label small {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  .period-step {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    font-size: 18px;
+  }
+
+  .period-step-text {
+    display: none;
+  }
+
+  /* Go-to-date and Today sit on their own line under ‹ period ›. */
+  .period-stepper input,
+  .period-stepper .tiny {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+
+  .period-stepper input {
+    height: 32px;
+    padding: 4px 10px;
+    font-size: 13px;
+  }
+
+  .period-select {
+    min-width: 0;
+  }
+
+  /* Financials has no division picker: compare takes the whole row. */
+  .period-bar:not(:has(.period-select ~ .period-select)) .period-select {
+    grid-column: 1 / -1;
+  }
+
+  .period-select > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .period-select select {
+    width: 100%;
+    min-width: 0;
+    font-size: 13px;
+  }
+
+  .period-custom {
+    flex-wrap: wrap;
+  }
+
+  .period-note {
+    margin: -6px 2px 0;
+    font-size: 12px;
+  }
+
+  .period-note-long {
+    display: none;
+  }
+
+  .period-note-short {
+    display: inline;
   }
 
   /* Two cards side by side leave ~170px: each comparison takes two lines

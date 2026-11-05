@@ -6,6 +6,7 @@ import { formatChange, formatValue, shortDate, tone } from './format'
 import { KpiCard, KpiGrid } from './KpiCard'
 import { ProfitComparePanel, TrendPanel, Waterfall } from './MasterCharts'
 import { PeriodBar } from './PeriodBar'
+import { splitLabel } from './format'
 import { useComparisons, useFetch, useInsights, usePeriod } from './periodState'
 import { PlanEditor } from './PlanEditor'
 import { Link } from 'react-router-dom'
@@ -26,14 +27,17 @@ function useMasterPage(path) {
       {result.error ? <div className="notice">{result.error}</div> : null}
       {result.data && comparisons.length ? (
         <p className="period-note muted">
-          Comparing with{' '}
-          {comparisons.map(({ name, label }, index) => (
-            <span key={name}>
-              {index ? ' and ' : ''}
-              <b>{name === 'previous' ? 'prev. period' : 'last year'}</b> ({label})
-            </span>
-          ))}
-          .{result.data.period?.partial ? ' This period is still in progress, so each comparison covers the same number of days.' : ''}
+          <span className="period-note-long">
+            Comparing with{' '}
+            {comparisons.map(({ name, label }, index) => (
+              <span key={name}>
+                {index ? ' and ' : ''}
+                <b>{name === 'previous' ? 'prev. period' : 'last year'}</b> ({label})
+              </span>
+            ))}
+            .{result.data.period?.partial ? ' This period is still in progress, so each comparison covers the same number of days.' : ''}
+          </span>
+          <span className="period-note-short">vs {comparisons.map(({ label }) => splitLabel(label).dates || label).join(' · ')}</span>
         </p>
       ) : null}
       {!result.data && !result.error ? <p className="muted">Loading…</p> : null}

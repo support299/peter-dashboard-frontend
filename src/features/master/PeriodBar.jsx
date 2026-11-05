@@ -1,4 +1,5 @@
 import { DIVISIONS } from './constants'
+import { splitLabel } from './format'
 import { usePeriod } from './periodState'
 
 const KINDS = [
@@ -21,6 +22,17 @@ const COMPARE = [
   { key: 'last_year', label: 'Same period last year' },
   { key: 'none', label: 'No comparison' },
 ]
+
+/** "November 2026 (Nov 1–5, 2026)": phones put the dates on a small second line. */
+function PeriodLabel({ label }) {
+  const { name, dates } = splitLabel(label || '…')
+  return (
+    <strong className="period-label">
+      {name}
+      {dates ? <small> ({dates})</small> : null}
+    </strong>
+  )
+}
 
 function localToday() {
   const now = new Date()
@@ -58,22 +70,22 @@ export function PeriodBar({ info, hideDivision = false, actions = null }) {
         </div>
       ) : PRESETS.has(state.kind) ? (
         <div className="period-stepper">
-          <strong>{period?.label || '…'}</strong>
+          <PeriodLabel label={period?.label} />
         </div>
       ) : (
         <div className="period-stepper">
-          <button type="button" className="ghost" disabled={!nav} onClick={() => update({ anchor: nav.previous.start })} aria-label="Previous period">
-            ‹ Previous
+          <button type="button" className="ghost period-step" disabled={!nav} onClick={() => update({ anchor: nav.previous.start })} aria-label="Previous period">
+            ‹<span className="period-step-text"> Previous</span>
           </button>
-          <strong>{period?.label || '…'}</strong>
+          <PeriodLabel label={period?.label} />
           <button
             type="button"
-            className="ghost"
+            className="ghost period-step"
             disabled={!nav || nav.next.start > localToday()}
             onClick={() => update({ anchor: nav.next.start })}
             aria-label="Next period"
           >
-            Next ›
+            <span className="period-step-text">Next </span>›
           </button>
           {state.kind === 'day' || state.kind === 'week' ? (
             <input

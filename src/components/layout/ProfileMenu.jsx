@@ -33,6 +33,7 @@ export function ProfileMenu({ user, loggingOut, onChangePassword, onLogout }) {
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
+        aria-label={`Account: ${email}`}
         disabled={loggingOut}
         onClick={() => setOpen((value) => !value)}
       >
@@ -47,6 +48,7 @@ export function ProfileMenu({ user, loggingOut, onChangePassword, onLogout }) {
       </button>
       {open ? (
         <div className="profile-dropdown" role="menu">
+          <p className="profile-dropdown-who">{email}</p>
           <button
             type="button"
             role="menuitem"

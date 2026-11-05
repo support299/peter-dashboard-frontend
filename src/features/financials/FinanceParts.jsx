@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { DrillModal } from '../master/DrillModal'
 import { PeriodBar } from '../master/PeriodBar'
+import { splitLabel } from '../master/format'
 import { useComparisons, usePeriod } from '../master/periodState'
 import '../master/master.css'
 import './finance.css'
@@ -15,14 +16,17 @@ export function FinanceShell({ data, error, drill, onCloseDrill, actions, childr
       {error ? <div className="notice">{error}</div> : null}
       {compareNote && data && comparisons.length ? (
         <p className="period-note muted">
-          Comparing with{' '}
-          {comparisons.map(({ name, label }, index) => (
-            <span key={name}>
-              {index ? ' and ' : ''}
-              <b>{name === 'previous' ? 'prev. period' : 'last year'}</b> ({label})
-            </span>
-          ))}
-          .
+          <span className="period-note-long">
+            Comparing with{' '}
+            {comparisons.map(({ name, label }, index) => (
+              <span key={name}>
+                {index ? ' and ' : ''}
+                <b>{name === 'previous' ? 'prev. period' : 'last year'}</b> ({label})
+              </span>
+            ))}
+            .
+          </span>
+          <span className="period-note-short">vs {comparisons.map(({ label }) => splitLabel(label).dates || label).join(' · ')}</span>
         </p>
       ) : null}
       {!data && !error ? <p className="muted">Loading…</p> : null}
