@@ -9,7 +9,9 @@
 .topbar {
   position: sticky;
   top: 0;
-  z-index: 20;
+  /* Above the sticky period bar (20) and info bubbles (30), so the account menu opens over them;
+     below drawers, record lists and pop-ups (40+). */
+  z-index: 35;
   flex-shrink: 0;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
