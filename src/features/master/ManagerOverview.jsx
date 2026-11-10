@@ -93,8 +93,9 @@ function Headline({ cards, onDrill }) {
   )
 }
 
-function AttentionStrip({ attention, staff, onDrill }) {
+function AttentionStrip({ attention, staff, onDrill: openDrill }) {
   const rebook = attention?.visits_to_rebook || 0
+  const confirm = attention?.first_visits_to_confirm || 0
   const overdue = attention?.overdue_complaints || 0
   const pending = staff?.pending_time_off?.length || 0
   return (
@@ -102,10 +103,13 @@ function AttentionStrip({ attention, staff, onDrill }) {
       <span className="mgr-attention-title">
         <WarnIcon /> Needs attention
       </span>
-      <button type="button" className="mgr-attention-item" disabled={!rebook} onClick={() => onDrill('visits_to_rebook', 'Visits to rebook')} title="Past visits that were never completed">
+      <button type="button" className="mgr-attention-item" disabled={!rebook} onClick={() => openDrill('visits_to_rebook', 'Visits to rebook')} title="Past visits that were never completed">
         <b className={rebook ? 'bad' : ''}>{number(rebook)}</b> {plural(rebook, 'visit')} to rebook <span aria-hidden="true">›</span>
       </button>
-      <button type="button" className="mgr-attention-item" disabled={!overdue} onClick={() => onDrill('complaints_overdue', 'Overdue complaints')} title="Open for more than 1 business day">
+      <button type="button" className="mgr-attention-item" disabled={!confirm} onClick={() => openDrill('first_visits_to_confirm', 'First visits to confirm')} title="Approved bookings with no visit scheduled in Jobber yet">
+        <b className={confirm ? 'bad' : ''}>{number(confirm)}</b> first {plural(confirm, 'visit')} to confirm <span aria-hidden="true">›</span>
+      </button>
+      <button type="button" className="mgr-attention-item" disabled={!overdue} onClick={() => openDrill('complaints_overdue', 'Overdue complaints')} title="Open for more than 1 business day">
         <b className={overdue ? 'bad' : ''}>{number(overdue)}</b> overdue {plural(overdue, 'complaint')} <span aria-hidden="true">›</span>
       </button>
       <a className="mgr-attention-item" href={staff?.hub_time_off_url} target="_blank" rel="noreferrer">
