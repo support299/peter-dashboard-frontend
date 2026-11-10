@@ -42,6 +42,7 @@ function DashboardShell() {
     source,
     view,
     financeRole,
+    limited,
     jobber,
     filters,
     filterOptions,
@@ -98,20 +99,23 @@ function DashboardShell() {
           </div>
         </div>
 
-        <SourceToggle source={source} onChange={switchSource} showFinancials={Boolean(financeRole)} />
+        {/* Someone limited to the Manager overview has no other section to switch to. */}
+        {limited ? <span /> : <SourceToggle source={source} onChange={switchSource} showFinancials={Boolean(financeRole)} />}
 
         <div className="topbar-actions">
           <span className="hint">
             {syncing ? 'Updating…' : updatedAt ? `Updated ${relative(updatedAt)}` : 'Not synced yet'}
           </span>
-          <button
-            className="ghost"
-            type="button"
-            onClick={refresh}
-            disabled={busy || syncing || (['jobber', 'master', 'financials'].includes(source) && !connected)}
-          >
-            {syncing ? 'Refreshing…' : ['jobber', 'master', 'financials'].includes(source) ? 'Refresh' : source === 'internal' ? 'Sync Internal' : 'Sync Pricing'}
-          </button>
+          {limited ? null : (
+            <button
+              className="ghost"
+              type="button"
+              onClick={refresh}
+              disabled={busy || syncing || (['jobber', 'master', 'financials'].includes(source) && !connected)}
+            >
+              {syncing ? 'Refreshing…' : ['jobber', 'master', 'financials'].includes(source) ? 'Refresh' : source === 'internal' ? 'Sync Internal' : 'Sync Pricing'}
+            </button>
+          )}
           <ProfileMenu
             user={user}
             loggingOut={loggingOut}
@@ -146,7 +150,7 @@ function DashboardShell() {
 
             <section className={`hero ${source !== 'jobber' ? 'hero-internal' : ''}`}>
               <div>
-                {(view !== 'overview' && source !== 'financials') || detail ? (
+                {((view !== 'overview' && source !== 'financials') || detail) && !limited ? (
                   <button className="back" type="button" onClick={goBack}>
                     ← Back
                   </button>

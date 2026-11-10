@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../app/providers/AuthProvider'
 import { NavIcon } from '../../components/layout/NavIcon'
 import { money, number, queryString } from '../../lib'
 import { formatValue, shortDate, splitLabel, tone } from './format'
@@ -206,18 +207,24 @@ function TimeOffList({ rows, empty }) {
 
 function Staffing({ staff }) {
   const pending = staff?.pending_time_off || []
+  // The roster lives in the Internal App, which someone limited to this page can't open.
+  const { user } = useAuth()
+  const limited = Array.isArray(user?.pages)
+  const Workforce = limited ? 'div' : Link
   return (
     <Panel
       title="Staffing & capacity"
       subtitle={staff ? `Active staff today. Time off from ${shortDate(staff.window.from)} to ${shortDate(staff.window.to)}.` : null}
       actions={
-        <Link className="ghost tiny" to="/internal/employees">
-          Roster →
-        </Link>
+        limited ? null : (
+          <Link className="ghost tiny" to="/internal/employees">
+            Roster →
+          </Link>
+        )
       }
     >
       <div className="mgr-stats">
-        <Link className="mgr-stat" to="/internal/employees">
+        <Workforce className="mgr-stat" {...(limited ? {} : { to: '/internal/employees' })}>
           <span className="mgr-stat-icon">
             <NavIcon name="employees" />
           </span>
@@ -227,10 +234,12 @@ function Staffing({ staff }) {
               {number(staff?.employees)} {plural(staff?.employees, 'employee')} · {number(staff?.contractors)} {plural(staff?.contractors, 'contractor')}
             </strong>
           </span>
-          <span className="mgr-chev" aria-hidden="true">
-            ›
-          </span>
-        </Link>
+          {limited ? null : (
+            <span className="mgr-chev" aria-hidden="true">
+              ›
+            </span>
+          )}
+        </Workforce>
         <a className="mgr-stat" href={staff?.hub_time_off_url} target="_blank" rel="noreferrer">
           <span className="mgr-stat-icon">
             <NavIcon name="leave" />
