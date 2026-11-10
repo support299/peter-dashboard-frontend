@@ -124,7 +124,7 @@ const PROFIT_SERIES = [
 ]
 
 /** Side-by-side columns around a zero line, so a loss goes below it. Missing data draws nothing. */
-function CompareChart({ series, kind = 'currency' }) {
+export function CompareChart({ series, kind = 'currency', label = 'Revenue, gross profit and net profit' }) {
   const [hover, setHover] = useState(null)
   const points = series[0]?.points || []
   if (!points.length) return <p className="muted empty">No data yet.</p>
@@ -142,7 +142,7 @@ function CompareChart({ series, kind = 'currency' }) {
 
   return (
     <div className="trend-chart">
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Revenue, gross profit and net profit">
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label}>
         {points.map((point, index) => {
           const left = PAD.l + slot * index + (slot - barW * series.length) / 2
           return (

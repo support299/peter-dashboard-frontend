@@ -12,6 +12,7 @@ import '../../styles/App.css'
 
 const MASTER_SUBTITLES = {
   overview: 'Is the company healthy, and what changed? Click any number to see why.',
+  manager: 'How the business is doing, what needs attention, and staffing.',
   revenue: 'Revenue by type and division, profitability, top clients and receivables.',
   clients: 'Are we gaining or losing clients, and are recurring clients growing?',
   mrr: 'Monthly recurring revenue: what we added, what we lost, and paused clients.',

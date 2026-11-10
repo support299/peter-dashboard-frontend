@@ -39,6 +39,7 @@ import MasterQualityPage from '../../pages/master/QualityPage'
 import MasterSalesPage from '../../pages/master/SalesPage'
 import MasterAlertsPage from '../../pages/master/AlertsPage'
 import MasterRulesPage from '../../pages/master/RulesPage'
+import MasterManagerPage from '../../pages/master/ManagerPage'
 
 import FinancialsExpensesPage from '../../pages/financials/ExpensesPage'
 import FinancialsEntriesPage from '../../pages/financials/EntriesPage'
@@ -75,6 +76,7 @@ export function AppRoutes() {
             <Route path="sales" element={<MasterSalesPage />} />
             <Route path="alerts" element={<MasterAlertsPage />} />
             <Route path="rules" element={<MasterRulesPage />} />
+            <Route path="manager" element={<MasterManagerPage />} />
           </Route>
 
           <Route path="financials">

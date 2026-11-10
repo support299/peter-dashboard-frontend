@@ -9,5 +9,6 @@ export {
   MasterOperations,
   MasterQuality,
   MasterSales,
+  ManagerOverview,
 } from './MasterPages.jsx'
 export { MasterAlerts, MasterRules } from './ManagePages.jsx'

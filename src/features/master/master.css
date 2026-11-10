@@ -360,6 +360,12 @@
 .kpi-pending {
   display: grid;
   gap: 8px;
+  min-width: 0;
+}
+
+/* Everything inside a panel stays within it (a long "not available yet" row used to stick out). */
+.master-panel > * {
+  min-width: 0;
 }
 
 .kpi-grid + .kpi-pending {
@@ -417,6 +423,7 @@
 
 .master-grid .span-5 { grid-column: span 5; }
 .master-grid .span-7 { grid-column: span 7; }
+.master-grid .span-6 { grid-column: span 6; }
 .master-grid .span-12 { grid-column: span 12; }
 
 .master-panel {
@@ -872,6 +879,7 @@
 
 @media (max-width: 1080px) {
   .master-grid .span-5,
+  .master-grid .span-6,
   .master-grid .span-7 {
     grid-column: span 12;
   }
@@ -1354,4 +1362,132 @@
   height: 10px;
   margin-right: 6px;
   border-radius: 3px;
+}
+
+/* ——— Manager Overview ——— */
+.manager-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.manager-chart {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: white;
+}
+
+.manager-chart h4,
+.manager-leave-grid h4 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.manager-alerts,
+.manager-leave,
+.manager-affected {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.manager-alerts li,
+.manager-leave > li {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.manager-alerts li:last-child,
+.manager-leave > li:last-child {
+  border-bottom: 0;
+}
+
+.manager-alerts a,
+.manager-leave a {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.manager-affected {
+  margin-top: 4px;
+  padding-left: 12px;
+  border-left: 2px solid var(--line);
+  font-size: 13px;
+}
+
+.manager-leave-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.fin-stats.manager-target {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.manager-target .link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  text-decoration: underline dotted;
+  cursor: pointer;
+}
+
+.manager-target > .good strong {
+  color: var(--good, #047857);
+}
+
+.manager-target > .bad strong {
+  color: var(--bad, #b91c1c);
+}
+
+.manager-progress {
+  height: 8px;
+  margin-top: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.manager-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #b91c1c;
+}
+
+.manager-progress.good i {
+  background: #047857;
+}
+
+@media (max-width: 1080px) {
+  .fin-stats.manager-target {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .manager-leave-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .manager-charts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .manager-quick {
+    width: 100%;
+  }
+
+  .manager-quick button {
+    flex: 1;
+  }
 }

@@ -41,7 +41,7 @@ export function DrillModal({ request, onClose, onChanged }) {
       <section className="drill-panel" role="dialog" aria-modal="true" aria-label={data?.title || request.title} onClick={(e) => e.stopPropagation()}>
         <header className="drill-head">
           <div>
-            <p className="hero-kicker">{data?.period?.label || 'Details'}</p>
+            <p className="hero-kicker">{data?.kicker || data?.period?.label || 'Details'}</p>
             <h3>{data?.title || request.title}</h3>
             {data ? (
               <p className="muted">

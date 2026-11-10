@@ -57,6 +57,7 @@ export const PRICING_NAV = [
 
 export const MASTER_NAV = [
   { id: 'overview', label: 'CEO view', icon: 'overview' },
+  { id: 'manager', label: 'Manager overview', icon: 'employees' },
   { id: 'revenue', label: 'Revenue', icon: 'invoices' },
   { id: 'clients', label: 'Clients & growth', icon: 'clients' },
   { id: 'mrr', label: 'MRR', icon: 'mrr' },
