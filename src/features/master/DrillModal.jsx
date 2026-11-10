@@ -12,6 +12,13 @@ function Cell({ column, row }) {
   if (column.kind === 'month') return monthName(value)
   if (column.kind === 'status') return <span className={`status-pill s-${value}`}>{STATUS_LABELS[value] || value}</span>
   if (['currency', 'percent', 'count'].includes(column.kind)) return value == null ? '—' : formatValue(column.kind, value)
+  if (column.kind === 'link') {
+    return value ? (
+      <a className="ghost tiny" href={value} target="_blank" rel="noreferrer">
+        {row[`${column.key}_label`] || 'Open ↗'}
+      </a>
+    ) : null
+  }
   return value || '—'
 }
 
