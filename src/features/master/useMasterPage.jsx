@@ -6,7 +6,7 @@ import { useComparisons, useInsights, usePeriod } from './periodState'
 import { SkeletonPage } from '../../components/Skeleton'
 
 /** Period bar + loading/error + drill-down modal shared by every Master page. */
-export function useMasterPage(path) {
+export function useMasterPage(path, { bare = false } = {}) {
   const result = useInsights(path)
   const { reload } = usePeriod()
   const [drill, setDrill] = useState(null)
@@ -14,9 +14,9 @@ export function useMasterPage(path) {
   const comparisons = useComparisons(result.data)
   const shell = (children) => (
     <div className="master">
-      <PeriodBar info={result.data} />
+      {bare ? null : <PeriodBar info={result.data} />}
       {result.error ? <div className="notice">{result.error}</div> : null}
-      {result.data && comparisons.length ? (
+      {result.data && comparisons.length && !bare ? (
         <p className="period-note muted">
           <span className="period-note-long">
             Comparing with{' '}

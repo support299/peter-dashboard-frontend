@@ -1848,3 +1848,214 @@ a.mgr-stat:hover {
     flex: 1;
   }
 }
+
+/* ——— TV view (Peter, Nov 2026): the Manager overview alone on a wall screen, ?tv=1 ——— */
+.app.tv-mode .topbar,
+.app.tv-mode .hero {
+  display: none;
+}
+
+.app.tv-mode .layout {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.app.tv-mode .content {
+  padding: 20px 28px 28px;
+}
+
+.manager-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.tv-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+
+.tv-header h2 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.tv-header p {
+  margin: 4px 0 0;
+  font-size: 14px;
+}
+
+.tv-title {
+  display: grid;
+  gap: 8px;
+}
+
+.tv-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Clock: big hours and minutes, seconds and AM/PM beside them, the date below, the refresh ring on the right */
+.tv-clock {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-areas:
+    'time ring'
+    'date ring';
+  align-items: center;
+  gap: 2px 22px;
+  padding: 14px 22px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #0f3d36 0%, #115e52 100%);
+  color: #ecfdf5;
+  box-shadow: 0 10px 30px rgba(15, 61, 54, 0.25);
+  font-variant-numeric: tabular-nums;
+}
+
+.tv-time {
+  grid-area: time;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1;
+}
+
+.tv-hm {
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+.tv-hm i {
+  margin: 0 2px;
+  font-style: normal;
+  opacity: 0.55;
+  animation: tv-blink 1s steps(1) infinite;
+}
+
+@keyframes tv-blink {
+  50% {
+    opacity: 0.15;
+  }
+}
+
+.tv-side {
+  display: grid;
+  gap: 4px;
+  padding-top: 6px;
+}
+
+.tv-sec {
+  min-width: 2ch;
+  font-size: 26px;
+  font-weight: 700;
+  color: #6ee7b7;
+}
+
+.tv-ampm {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  opacity: 0.75;
+}
+
+.tv-date {
+  grid-area: date;
+  font-size: 15px;
+  opacity: 0.8;
+}
+
+.tv-refresh {
+  grid-area: ring;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 22px;
+  border-left: 1px solid rgba(236, 253, 245, 0.2);
+}
+
+.tv-refresh span {
+  display: grid;
+  line-height: 1.1;
+}
+
+.tv-refresh b {
+  font-size: 22px;
+}
+
+.tv-refresh small {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.tv-ring-track,
+.tv-ring {
+  fill: none;
+  stroke-width: 4;
+}
+
+.tv-ring-track {
+  stroke: rgba(236, 253, 245, 0.18);
+}
+
+.tv-ring {
+  stroke: #6ee7b7;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tv-hm i {
+    animation: none;
+  }
+
+  .tv-ring {
+    transition: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .tv-clock {
+    grid-template-columns: auto;
+    grid-template-areas: 'time' 'date' 'ring';
+  }
+
+  .tv-refresh {
+    padding: 10px 0 0;
+    border-top: 1px solid rgba(236, 253, 245, 0.2);
+    border-left: 0;
+  }
+
+  .tv-hm {
+    font-size: 42px;
+  }
+}
+
+/* Readable from across the room */
+.tv-mode .mgr-card-value {
+  font-size: 36px;
+}
+
+.tv-mode .mgr-card-label,
+.tv-mode .mgr-row,
+.tv-mode .mgr-stat strong {
+  font-size: 16px;
+}
+
+.tv-mode .mgr-attention {
+  font-size: 18px;
+}
+
+.tv-mode .fin-stats.manager-target strong {
+  font-size: 26px;
+}
+
+.tv-mode .mgr-chart h4,
+.tv-mode .mgr-list h4 {
+  font-size: 16px;
+}

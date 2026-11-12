@@ -21,14 +21,15 @@ export function useFetch(url, version = 0) {
     let cancelled = false
     api(url)
       .then(readJson)
-      .then((data) => !cancelled && setResult({ key, data, error: '' }))
+      .then((data) => !cancelled && setResult({ key, data, error: '', at: new Date() }))
       .catch((err) => !cancelled && setResult((prev) => ({ key, data: prev.data, error: err.message })))
     return () => {
       cancelled = true
     }
   }, [url, key])
 
-  return { data: result.data, error: result.key === key ? result.error : '', loading: result.key !== key }
+  // loadedAt: when the data on screen arrived (the TV view shows "Updated 2:15 pm").
+  return { data: result.data, error: result.key === key ? result.error : '', loading: result.key !== key, loadedAt: result.at || null }
 }
 
 /** Fetch a Master Dashboard endpoint for the current period; re-fetches when the period changes. */

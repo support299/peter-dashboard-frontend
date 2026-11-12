@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../../app/providers/AuthProvider'
 import { ProfileMenu, SideNav, SourceToggle } from '../../components/layout'
 import { JOBBER_BOARD_VIEWS } from '../../config/navigation'
@@ -68,6 +68,9 @@ function DashboardShell() {
     setFilter,
   } = useDashboard()
   const { user, loggingOut, logout, showChangePassword, setShowChangePassword } = useAuth()
+  const { search } = useLocation()
+  // TV view (Peter, Nov 2026): the Manager overview alone on a wall screen, address ends in ?tv=1.
+  const tv = source === 'master' && view === 'manager' && new URLSearchParams(search).get('tv') === '1'
 
   if (!ready) {
     return <SkeletonApp />
@@ -77,11 +80,11 @@ function DashboardShell() {
     source === 'internal' ? 'layout internal' : source === 'pricing' ? 'layout pricing' : ['jobber', 'master', 'financials'].includes(source) ? 'layout jobber' : 'layout'
 
   return (
-    <div className="app">
+    <div className={`app${tv ? ' tv-mode' : ''}`}>
       {showChangePassword ? (
         <ChangePasswordModal onClose={() => setShowChangePassword(false)} />
       ) : null}
-      <header className="topbar">
+      <header className="topbar" hidden={tv}>
         <div className="brand">
           <div className="mark">P</div>
           <div>
@@ -144,12 +147,12 @@ function DashboardShell() {
 
       {!showJobberConnect ? (
         <div className={layoutClass}>
-          <SideNav source={source} items={nav} view={view} onOpen={openView} />
+          {tv ? null : <SideNav source={source} items={nav} view={view} onOpen={openView} />}
 
           <main className="content">
             {error ? <div className="notice">{error}</div> : null}
 
-            <section className={`hero ${source !== 'jobber' ? 'hero-internal' : ''}`}>
+            <section className={`hero ${source !== 'jobber' ? 'hero-internal' : ''}`} hidden={tv}>
               <div>
                 {((view !== 'overview' && source !== 'financials') || detail) && !limited ? (
                   <button className="back" type="button" onClick={goBack}>

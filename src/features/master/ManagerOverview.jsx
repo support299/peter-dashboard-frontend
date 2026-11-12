@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useCallback, useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../app/providers/AuthProvider'
 import { NavIcon } from '../../components/layout/NavIcon'
 import { money, number, queryString } from '../../lib'
@@ -519,23 +519,169 @@ function ManagerHistory() {
   )
 }
 
+const TV_REFRESH_MS = 5 * 60 * 1000
+
+function fullscreen(on) {
+  try {
+    if (on && !document.fullscreenElement) document.documentElement.requestFullscreen?.()?.catch?.(() => {})
+    if (!on && document.fullscreenElement) document.exitFullscreen?.()?.catch?.(() => {})
+  } catch {
+    // Some TV browsers have no full-screen support: the page still fills the window.
+  }
+}
+
+/** TV view: the page alone on a wall screen. The address ends in ?tv=1 so a TV can bookmark it. */
+function useTvMode() {
+  const { pathname, search } = useLocation()
+  const navigate = useNavigate()
+  const tv = new URLSearchParams(search).get('tv') === '1'
+  const enter = useCallback(() => {
+    fullscreen(true) // inside the click: browsers only allow full screen from one
+    navigate(`${pathname}?tv=1`)
+  }, [navigate, pathname])
+  const exit = useCallback(() => {
+    fullscreen(false)
+    navigate(pathname)
+  }, [navigate, pathname])
+  // Left TV view another way (browser Back, a link): leave full screen too.
+  useEffect(() => {
+    if (!tv) fullscreen(false)
+  }, [tv])
+  return { tv, enter, exit }
+}
+
+const pad = (n) => String(n).padStart(2, '0')
+const timeOf = (date) => date.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit' })
+
+/** Seconds ticking. Also runs the TV refresh: every 5 minutes after the data on screen arrived. */
+function useTicker(loadedAt, onRefresh) {
+  const [startedAt] = useState(() => Date.now())
+  const [now, setNow] = useState(() => Date.now())
+  const [triedAt, setTriedAt] = useState(0) // a failed refresh still waits 5 minutes before the next try
+  const nextAt = Math.max(loadedAt ? loadedAt.getTime() : 0, triedAt, startedAt) + TV_REFRESH_MS
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const t = Date.now()
+      setNow(t)
+      if (t >= nextAt) {
+        setTriedAt(t)
+        onRefresh()
+      }
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [nextAt, onRefresh])
+  return { now: new Date(now), left: Math.max(0, nextAt - now) }
+}
+
+function RefreshRing({ left }) {
+  const size = 44
+  const r = 18
+  const c = 2 * Math.PI * r
+  const seconds = Math.ceil(left / 1000)
+  return (
+    <div className="tv-refresh" title="The numbers reload by themselves every 5 minutes">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
+        <circle cx={size / 2} cy={size / 2} r={r} className="tv-ring-track" />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          className="tv-ring"
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - left / TV_REFRESH_MS)}
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+      </svg>
+      <span>
+        <b>
+          {Math.floor(seconds / 60)}:{pad(seconds % 60)}
+        </b>
+        <small>next update</small>
+      </span>
+    </div>
+  )
+}
+
+function TvClock({ loadedAt, onRefresh }) {
+  const { now, left } = useTicker(loadedAt, onRefresh)
+  const hours = now.getHours() % 12 || 12
+  return (
+    <div className="tv-clock" role="timer" aria-label={`${timeOf(now)}, next update in ${Math.ceil(left / 60000)} minutes`}>
+      <div className="tv-time">
+        <span className="tv-hm">
+          {hours}
+          <i>:</i>
+          {pad(now.getMinutes())}
+        </span>
+        <span className="tv-side">
+          <span className="tv-sec">{pad(now.getSeconds())}</span>
+          <span className="tv-ampm">{now.getHours() < 12 ? 'AM' : 'PM'}</span>
+        </span>
+      </div>
+      <div className="tv-date">{now.toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</div>
+      <RefreshRing left={left} />
+    </div>
+  )
+}
+
+function TvHeader({ period, loadedAt, onRefresh, onExit }) {
+  const [isFull, setIsFull] = useState(() => Boolean(document.fullscreenElement))
+  useEffect(() => {
+    const onChange = () => setIsFull(Boolean(document.fullscreenElement))
+    document.addEventListener('fullscreenchange', onChange)
+    return () => document.removeEventListener('fullscreenchange', onChange)
+  }, [])
+  return (
+    <header className="tv-header">
+      <div className="tv-title">
+        <h2>Manager overview</h2>
+        <p className="muted">
+          {period}
+          {loadedAt ? ` · Updated ${timeOf(loadedAt)}` : ''}
+        </p>
+        <div className="tv-actions">
+          {isFull ? null : (
+            <button type="button" className="ghost tiny" onClick={() => fullscreen(true)}>
+              Full screen
+            </button>
+          )}
+          <button type="button" className="ghost tiny" onClick={onExit}>
+            Exit TV view
+          </button>
+        </div>
+      </div>
+      <TvClock loadedAt={loadedAt} onRefresh={onRefresh} />
+    </header>
+  )
+}
+
 export function ManagerOverview() {
-  const { data, openDrill, shell } = useMasterPage('/api/insights/manager/')
-  const { state, update } = usePeriod()
+  const { tv, enter, exit } = useTvMode()
+  const { data, loadedAt, openDrill, shell } = useMasterPage('/api/insights/manager/', { bare: tv })
+  // On the TV the numbers keep themselves current (TvClock reloads them); old ones stay on screen meanwhile.
+  const { state, update, reload } = usePeriod()
   const staff = data?.staffing
   const isLastWeek = state.kind === 'week' && state.anchor === data?.last_completed_week
   const quick = (
-    <div className="seg manager-quick">
-      <button type="button" className={state.kind === 'month' && !state.anchor ? 'active' : ''} onClick={() => update({ kind: 'month', anchor: '' })}>
-        Month to date
-      </button>
-      <button type="button" className={isLastWeek ? 'active' : ''} disabled={!data} onClick={() => update({ kind: 'week', anchor: data.last_completed_week })}>
-        Last completed week
-      </button>
+    <div className="manager-actions">
+      <div className="seg manager-quick">
+        <button type="button" className={state.kind === 'month' && !state.anchor ? 'active' : ''} onClick={() => update({ kind: 'month', anchor: '' })}>
+          Month to date
+        </button>
+        <button type="button" className={isLastWeek ? 'active' : ''} disabled={!data} onClick={() => update({ kind: 'week', anchor: data.last_completed_week })}>
+          Last completed week
+        </button>
+      </div>
+      {tv ? null : (
+        <button type="button" className="ghost tiny tv-button" onClick={enter} title="Show this page full screen, for a TV">
+          ⛶ TV view
+        </button>
+      )}
     </div>
   )
   return shell(
     <>
+      {tv ? <TvHeader period={data?.period?.label} loadedAt={loadedAt} onRefresh={reload} onExit={exit} /> : null}
       <Panel title="Business overview" subtitle={`${data?.period?.label || ''}. Click a number to see the records behind it.`} actions={quick}>
         <Headline cards={data?.headline} onDrill={openDrill} />
         <AttentionStrip attention={data?.attention} staff={staff} onDrill={openDrill} />
