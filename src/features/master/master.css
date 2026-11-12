@@ -1908,10 +1908,11 @@ a.mgr-stat:hover {
   align-items: center;
   gap: 2px 22px;
   padding: 14px 22px;
+  border: 1px solid #a7f3d0;
   border-radius: 20px;
-  background: linear-gradient(135deg, #0f3d36 0%, #115e52 100%);
-  color: #ecfdf5;
-  box-shadow: 0 10px 30px rgba(15, 61, 54, 0.25);
+  background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%);
+  color: #0f3d36;
+  box-shadow: 0 8px 24px rgba(15, 61, 54, 0.08);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1952,7 +1953,7 @@ a.mgr-stat:hover {
   min-width: 2ch;
   font-size: 26px;
   font-weight: 700;
-  color: #6ee7b7;
+  color: #059669;
 }
 
 .tv-ampm {
@@ -1974,7 +1975,7 @@ a.mgr-stat:hover {
   align-items: center;
   gap: 10px;
   padding-left: 22px;
-  border-left: 1px solid rgba(236, 253, 245, 0.2);
+  border-left: 1px solid rgba(15, 61, 54, 0.15);
 }
 
 .tv-refresh span {
@@ -2000,11 +2001,11 @@ a.mgr-stat:hover {
 }
 
 .tv-ring-track {
-  stroke: rgba(236, 253, 245, 0.18);
+  stroke: rgba(15, 61, 54, 0.12);
 }
 
 .tv-ring {
-  stroke: #6ee7b7;
+  stroke: #10b981;
   stroke-linecap: round;
   transition: stroke-dashoffset 1s linear;
 }
@@ -2027,7 +2028,7 @@ a.mgr-stat:hover {
 
   .tv-refresh {
     padding: 10px 0 0;
-    border-top: 1px solid rgba(236, 253, 245, 0.2);
+    border-top: 1px solid rgba(15, 61, 54, 0.15);
     border-left: 0;
   }
 
