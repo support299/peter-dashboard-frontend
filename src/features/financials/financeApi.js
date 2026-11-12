@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { api } from '../../lib'
 import { useFetch, usePeriod } from '../master/periodState'
+import { toast } from '../../lib/feedback'
 
 /** Send JSON or FormData; errors keep the response payload (e.g. likely duplicates on 409). */
 export async function send(path, { method = 'POST', body } = {}) {
@@ -36,7 +37,7 @@ export async function openReceipt(path) {
     else window.location.href = url
   } catch (err) {
     tab?.close()
-    window.alert(err.message)
+    toast(err.message, { type: 'error' })
   }
 }
 

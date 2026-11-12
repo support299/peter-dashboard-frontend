@@ -4,6 +4,7 @@ import { Panel } from '../master/MasterPages'
 import { useFetch, usePeriod } from '../master/periodState'
 import { atLeast, send, useMeta } from './financeApi'
 import { Choice } from './FinanceParts'
+import { confirmDialog } from '../../lib/feedback'
 
 function CategoryRow({ cat, admin, onChange, children }) {
   const [name, setName] = useState(cat.name)
@@ -23,7 +24,7 @@ function CategoryRow({ cat, admin, onChange, children }) {
   }
 
   async function remove() {
-    if (!window.confirm(`Remove “${cat.name}”? If it's already used, it's hidden instead so past expenses keep it.`)) return
+    if (!(await confirmDialog({ title: `Remove “${cat.name}”?`, message: "If it's already used, it's hidden instead so past expenses keep it.", confirmLabel: 'Remove', danger: true }))) return
     try {
       const result = await send(`/api/financials/categories/${cat.id}/`, {
         method: 'DELETE',

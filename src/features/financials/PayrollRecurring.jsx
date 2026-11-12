@@ -6,6 +6,7 @@ import { useFetch, usePeriod } from '../master/periodState'
 import { ExpenseForm } from './ExpenseForm'
 import { openReceipt, send, toForm, todayIso, useMeta, subcategoriesOf } from './financeApi'
 import { CategorySelect, Choice, Field, FinanceShell, Modal, ReceiptInput } from './FinanceParts'
+import { confirmDialog, toast } from '../../lib/feedback'
 
 // ——— Payroll ———
 function PayRunForm({ meta, run, onClose, onSaved }) {
@@ -47,7 +48,7 @@ function PayRunForm({ meta, run, onClose, onSaved }) {
   }
 
   async function remove() {
-    if (!window.confirm('Delete this pay run and its two payroll expenses?')) return
+    if (!(await confirmDialog({ title: 'Delete this pay run?', message: 'Its two payroll expenses are deleted too.', confirmLabel: 'Delete', danger: true }))) return
     try {
       await send(`/api/financials/payroll/${run.id}/`, { method: 'DELETE' })
       onSaved()
@@ -260,7 +261,7 @@ function RecurringForm({ meta, rec, onClose, onSaved }) {
   }
 
   async function remove() {
-    if (!window.confirm('Delete this recurring expense? Charges already verified stay; ones waiting to be verified are removed.')) return
+    if (!(await confirmDialog({ title: 'Delete this recurring expense?', message: 'Charges already verified stay; ones waiting to be verified are removed.', confirmLabel: 'Delete', danger: true }))) return
     try {
       await send(`/api/financials/recurring/${rec.id}/`, { method: 'DELETE' })
       onSaved()
@@ -357,12 +358,12 @@ export function FinanceRecurring() {
   const pending = data?.pending || []
 
   async function skip(row) {
-    if (!window.confirm(`Mark “${row.description || row.vendor}” on ${shortDate(row.date)} as not charged? It won't be created again.`)) return
+    if (!(await confirmDialog({ title: `Mark “${row.description || row.vendor}” on ${shortDate(row.date)} as not charged?`, message: "It won't be created again.", confirmLabel: 'Mark not charged', danger: true }))) return
     try {
       await send(`/api/financials/expenses/${row.id}/skip/`)
       reload()
     } catch (err) {
-      window.alert(err.message)
+      toast(err.message, { type: 'error' })
     }
   }
 

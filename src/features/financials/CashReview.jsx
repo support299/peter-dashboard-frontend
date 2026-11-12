@@ -7,6 +7,7 @@ import { useComparisons, useFetch, useInsights, usePeriod } from '../master/peri
 import { atLeast, monthIso, send, todayIso, useMeta } from './financeApi'
 import { Choice, Field, FinanceShell, Modal } from './FinanceParts'
 import { SkeletonPage } from '../../components/Skeleton'
+import { confirmDialog } from '../../lib/feedback'
 
 // ——— Cash & Debt ———
 function AccountForm({ meta, account, onClose, onSaved }) {
@@ -48,7 +49,7 @@ function AccountForm({ meta, account, onClose, onSaved }) {
   }
 
   async function archive() {
-    if (!window.confirm(`Remove ${account.name}? Accounts with balance history are archived instead.`)) return
+    if (!(await confirmDialog({ title: `Remove ${account.name}?`, message: 'Accounts with balance history are archived instead.', confirmLabel: 'Remove', danger: true }))) return
     try {
       await send(`/api/financials/accounts/${account.id}/`, {
         method: 'DELETE',
@@ -136,7 +137,7 @@ function BalanceForm({ account, onClose, onSaved }) {
   }
 
   async function removeEntry(entry) {
-    if (!window.confirm(`Delete the balance of ${shortDate(entry.date)}?`)) return
+    if (!(await confirmDialog({ title: `Delete the balance of ${shortDate(entry.date)}?`, confirmLabel: 'Delete', danger: true }))) return
     try {
       await send(`/api/financials/balances/${entry.id}/`, { method: 'DELETE' })
       onSaved()

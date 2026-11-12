@@ -6,6 +6,7 @@ import { Panel } from '../master/MasterPages'
 import { shortDate } from '../master/format'
 import { useFetch } from '../master/periodState'
 import './users.css'
+import { confirmDialog, toast } from '../../lib/feedback'
 
 /*
  * Users (Peter, Nov 2026): admins add people and choose what each one can see. The server sends no
@@ -136,6 +137,7 @@ function UserForm({ row, options, onClose, onSaved }) {
       } else {
         if (form.password) body.password = form.password
         const result = await send(`/api/accounts/users/${row.id}/`, 'PATCH', body)
+        toast(`Changes saved for ${result.user.name || result.user.email}`)
         onSaved(result.user, form.password ? { email: result.user.email, password: form.password, created: false } : null)
       }
     } catch (err) {
@@ -146,11 +148,21 @@ function UserForm({ row, options, onClose, onSaved }) {
   }
 
   async function setActive(active) {
-    if (!active && !window.confirm(`Disable ${row.name || row.email}? They're signed out at once and can't sign in until you enable the account again.`)) return
+    if (
+      !active &&
+      !(await confirmDialog({
+        title: `Disable ${row.name || row.email}?`,
+        message: "They're signed out at once and can't sign in until you enable the account again. Nothing they entered is lost.",
+        confirmLabel: 'Disable account',
+        danger: true,
+      }))
+    )
+      return
     setBusy(true)
     setError('')
     try {
       const result = await send(`/api/accounts/users/${row.id}/`, 'PATCH', { is_active: active })
+      toast(active ? `${row.name || row.email} can sign in again` : `${row.name || row.email} is disabled and signed out`)
       onSaved(result.user, null)
     } catch (err) {
       setError(err.message)

@@ -5,6 +5,7 @@ import { formatValue, shortDate } from './format'
 import { PeriodBar } from './PeriodBar'
 import { useFetch, useInsights, usePeriod } from './periodState'
 import './master.css'
+import { confirmDialog, toast } from '../../lib/feedback'
 
 async function call(path, method = 'POST', body) {
   return readJson(await api(path, { method, body: body === undefined ? undefined : JSON.stringify(body) }))
@@ -117,7 +118,10 @@ export function MasterAlerts() {
                         <button
                           type="button"
                           className="ghost tiny"
-                          onClick={() => window.confirm('Delete this alert?') && run(() => call(`/api/insights/alerts/${rule.id}/`, 'DELETE'))}
+                          onClick={async () =>
+                            (await confirmDialog({ title: 'Delete this alert?', confirmLabel: 'Delete', danger: true })) &&
+                            run(() => call(`/api/insights/alerts/${rule.id}/`, 'DELETE'))
+                          }
                         >
                           Delete
                         </button>
@@ -197,7 +201,7 @@ export function MasterAlerts() {
 function RuleRow({ rule, divisions, categories, onDone }) {
   const [keyword, setKeyword] = useState(rule.keyword)
   const [priority, setPriority] = useState(rule.priority)
-  const save = (body) => call(`/api/insights/rules/${rule.id}/`, 'PATCH', body).then(onDone).catch((err) => window.alert(err.message))
+  const save = (body) => call(`/api/insights/rules/${rule.id}/`, 'PATCH', body).then(onDone).catch((err) => toast(err.message, { type: 'error' }))
   return (
     <tr className={rule.active ? '' : 'muted-row'}>
       <td>
@@ -239,9 +243,9 @@ function RuleRow({ rule, divisions, categories, onDone }) {
         <button
           type="button"
           className="ghost tiny"
-          onClick={() =>
-            window.confirm(`Delete the rule “${rule.keyword}”?`) &&
-            call(`/api/insights/rules/${rule.id}/`, 'DELETE').then(onDone).catch((err) => window.alert(err.message))
+          onClick={async () =>
+            (await confirmDialog({ title: `Delete the rule “${rule.keyword}”?`, confirmLabel: 'Delete', danger: true })) &&
+            call(`/api/insights/rules/${rule.id}/`, 'DELETE').then(onDone).catch((err) => toast(err.message, { type: 'error' }))
           }
         >
           Delete

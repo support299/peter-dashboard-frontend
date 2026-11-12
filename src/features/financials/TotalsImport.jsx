@@ -5,6 +5,7 @@ import { shortDate } from '../master/format'
 import { useFetch, usePeriod } from '../master/periodState'
 import { csvBlob, monthIso, saveBlob, send, useMeta } from './financeApi'
 import { CategorySelect, Choice, Field } from './FinanceParts'
+import { confirmDialog } from '../../lib/feedback'
 
 const TEMPLATE_EXAMPLE = [
   '2026-10-05',
@@ -50,7 +51,7 @@ function MonthlyTotals({ meta }) {
   }
 
   async function remove(total) {
-    if (!window.confirm(`Delete the ${total.category} total? Reports go back to the individual expenses.`)) return
+    if (!(await confirmDialog({ title: `Delete the ${total.category} total?`, message: 'Reports go back to the individual expenses.', confirmLabel: 'Delete', danger: true }))) return
     try {
       await send(`/api/financials/monthly-totals/${total.id}/`, {
         method: 'DELETE',
@@ -178,7 +179,7 @@ function ImportExpenses({ meta }) {
   }
 
   async function undo(batch) {
-    if (!window.confirm(`Delete the ${batch.remaining} expenses imported from ${batch.file_name}?`)) return
+    if (!(await confirmDialog({ title: `Delete the ${batch.remaining} expenses imported from ${batch.file_name}?`, confirmLabel: 'Delete', danger: true }))) return
     try {
       await send(`/api/financials/import/batches/${batch.id}/`, {
         method: 'DELETE',

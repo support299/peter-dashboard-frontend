@@ -3,6 +3,7 @@ import { money } from '../../lib'
 import { shortDate } from '../master/format'
 import { GST_RATE, QST_RATE, openReceipt, round2, send, toForm, todayIso, subcategoriesOf } from './financeApi'
 import { CategorySelect, Choice, Field, Modal, ReceiptInput } from './FinanceParts'
+import { confirmDialog } from '../../lib/feedback'
 
 const FIELDS = ['date', 'vendor', 'description', 'amount', 'gst', 'qst', 'category_id', 'subcategory_id', 'division', 'payment_method', 'status', 'notes']
 
@@ -126,7 +127,7 @@ export function ExpenseForm({ meta, expense, mode = expense ? 'edit' : 'create',
   }
 
   async function remove() {
-    if (!window.confirm('Delete this expense? This can’t be undone.')) return
+    if (!(await confirmDialog({ title: 'Delete this expense?', message: 'This can’t be undone.', confirmLabel: 'Delete', danger: true }))) return
     try {
       await send(`/api/financials/expenses/${expense.id}/`, {
         method: 'DELETE',
@@ -138,7 +139,7 @@ export function ExpenseForm({ meta, expense, mode = expense ? 'edit' : 'create',
   }
 
   async function removeReceipt() {
-    if (!window.confirm('Remove the attached receipt?')) return
+    if (!(await confirmDialog({ title: 'Remove the attached receipt?', confirmLabel: 'Remove', danger: true }))) return
     try {
       await send(`/api/financials/expenses/${expense.id}/receipt/`, {
         method: 'DELETE',

@@ -9,6 +9,7 @@ import { useComparisons, useFetch, useInsights, usePeriod } from '../master/peri
 import { ExpenseForm } from './ExpenseForm'
 import { atLeast, download, openReceipt, useDrill, useMeta } from './financeApi'
 import { CategorySelect, Choice, FinanceShell, Pager } from './FinanceParts'
+import { toast } from '../../lib/feedback'
 
 function GroupBars({ groups = [] }) {
   const max = Math.max(...groups.map((g) => Number(g.current || 0)), 1)
@@ -183,7 +184,7 @@ export function FinanceEntries() {
           <button
             type="button"
             className="ghost tiny"
-            onClick={() => download(`/api/financials/expenses/export/${queryString(query)}`, 'expenses.csv').catch((err) => window.alert(err.message))}
+            onClick={() => download(`/api/financials/expenses/export/${queryString(query)}`, 'expenses.csv').catch((err) => toast(err.message, { type: 'error' }))}
           >
             Download CSV
           </button>

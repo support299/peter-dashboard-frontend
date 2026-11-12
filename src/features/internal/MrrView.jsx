@@ -3,6 +3,7 @@ import { api, money, number, queryString, readJson, when } from '../../lib'
 import { AnimatedMetric } from '../dashboard/metrics'
 import { MrrActiveIcon, MrrLostIcon, MrrNetIcon, MrrNewIcon } from './icons'
 import { SkeletonTable } from '../../components/Skeleton'
+import { confirmDialog } from '../../lib/feedback'
 
 const EMPTY_FORM = {
   name: '',
@@ -361,7 +362,7 @@ export function MrrView() {
   }
 
   async function removeRow(row) {
-    if (!window.confirm(`Delete MRR row for ${row.name}?`)) return
+    if (!(await confirmDialog({ title: `Delete the MRR row for ${row.name}?`, confirmLabel: 'Delete', danger: true }))) return
     setBusy(true)
     try {
       await readJson(await api(`/api/admin-internal/mrr/${row.id}/`, { method: 'DELETE' }))
