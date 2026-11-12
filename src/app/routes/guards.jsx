@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../providers/AuthProvider'
+import { SkeletonApp } from '../../components/Skeleton'
 
 /** Requires authenticated session (HttpOnly cookie / restored user). */
 export function ProtectedRoute() {
@@ -7,7 +8,7 @@ export function ProtectedRoute() {
   const location = useLocation()
 
   if (!authReady) {
-    return <div className="content muted">Loading…</div>
+    return <SkeletonApp />
   }
 
   if (!isAuthenticated) {
@@ -24,7 +25,7 @@ export function GuestRoute() {
   const redirectTo = location.state?.from?.pathname || '/master/overview'
 
   if (!authReady) {
-    return <div className="content muted">Loading…</div>
+    return <SkeletonApp />
   }
 
   if (isAuthenticated) {

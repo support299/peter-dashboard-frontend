@@ -3,6 +3,7 @@ import { DrillModal } from './DrillModal'
 import { splitLabel } from './format'
 import { PeriodBar } from './PeriodBar'
 import { useComparisons, useInsights, usePeriod } from './periodState'
+import { SkeletonPage } from '../../components/Skeleton'
 
 /** Period bar + loading/error + drill-down modal shared by every Master page. */
 export function useMasterPage(path) {
@@ -30,7 +31,7 @@ export function useMasterPage(path) {
           <span className="period-note-short">vs {comparisons.map(({ label }) => splitLabel(label).dates || label).join(' · ')}</span>
         </p>
       ) : null}
-      {!result.data && !result.error ? <p className="muted">Loading…</p> : null}
+      {!result.data && !result.error ? <SkeletonPage /> : null}
       {result.data ? children : null}
       {drill ? <DrillModal request={drill} onClose={() => setDrill(null)} onChanged={reload} /> : null}
     </div>

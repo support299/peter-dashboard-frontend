@@ -5,6 +5,7 @@ import { splitLabel } from '../master/format'
 import { useComparisons, usePeriod } from '../master/periodState'
 import '../master/master.css'
 import './finance.css'
+import { SkeletonTable } from '../../components/Skeleton'
 
 /** Period bar, comparison note, loading/error and the drill-down modal for a Financials page. */
 export function FinanceShell({ data, error, drill, onCloseDrill, actions, children, compareNote = true }) {
@@ -29,7 +30,7 @@ export function FinanceShell({ data, error, drill, onCloseDrill, actions, childr
           <span className="period-note-short">vs {comparisons.map(({ label }) => splitLabel(label).dates || label).join(' · ')}</span>
         </p>
       ) : null}
-      {!data && !error ? <p className="muted">Loading…</p> : null}
+      {!data && !error ? <SkeletonTable rows={5} /> : null}
       {data ? children : null}
       {drill ? <DrillModal request={drill} onClose={onCloseDrill} onChanged={reload} /> : null}
     </div>

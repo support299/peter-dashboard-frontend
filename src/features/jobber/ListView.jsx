@@ -1,6 +1,7 @@
 import { customerLabel, money, number, when } from '../../lib'
 import { JobberFilterBar } from './JobberFilterBar'
 import { VisitTable } from './VisitTable'
+import { SkeletonTable } from '../../components/Skeleton'
 
 export function ListView({ view, list, search, setSearch, filters, setFilter, patchFilters, filterOptions, onPage, onOpen }) {
   return (
@@ -14,7 +15,7 @@ export function ListView({ view, list, search, setSearch, filters, setFilter, pa
         search={search}
         setSearch={setSearch}
       />
-      {!list ? <p className="empty muted">Loading…</p> : null}
+      {!list ? <SkeletonTable /> : null}
       {list && !list.results.length ? <p className="empty muted">Nothing here yet.</p> : null}
       {view === 'visits' && list ? <VisitTable rows={list.results} onOpen={(id) => onOpen('visits', id)} /> : null}
       {view === 'jobs' && list ? (

@@ -1,6 +1,7 @@
 import { number } from '../../lib'
 import { FilterBar } from '../dashboard/FilterBar'
 import { BonusTable, EmployeeTable, HubVisitTable, LeaveTable, LockInTable } from './tables'
+import { SkeletonTable } from '../../components/Skeleton'
 
 export function InternalListView({ view, list, search, setSearch, filters, setFilter, filterOptions, onPage }) {
   return (
@@ -20,7 +21,7 @@ export function InternalListView({ view, list, search, setSearch, filters, setFi
         search={search}
         setSearch={setSearch}
       />
-      {!list ? <p className="empty muted">Loading…</p> : null}
+      {!list ? <SkeletonTable /> : null}
       {list && !list.results.length ? <p className="empty muted">Nothing here yet.</p> : null}
       {view === 'employees' && list ? <EmployeeTable rows={list.results} /> : null}
       {view === 'leave' && list ? <LeaveTable rows={list.results} /> : null}

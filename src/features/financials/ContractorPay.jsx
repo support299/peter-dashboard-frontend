@@ -4,6 +4,7 @@ import { Panel } from '../master/MasterPages'
 import { shortDate } from '../master/format'
 import { useFetch, usePeriod } from '../master/periodState'
 import { FinanceShell, Modal } from './FinanceParts'
+import { SkeletonTable } from '../../components/Skeleton'
 
 const TYPES = {
   pay: 'Pay',
@@ -20,7 +21,7 @@ function ContractorLines({ person, params, onClose }) {
   return (
     <Modal title={person.contractor} kicker="Contractor pay" onClose={onClose} wide>
       {error ? <div className="notice">{error}</div> : null}
-      {!data && !error ? <p className="muted">Loading…</p> : null}
+      {!data && !error ? <SkeletonTable /> : null}
       {data ? (
         <div className="drill-table-wrap">
           <table className="drill-table fin-table">

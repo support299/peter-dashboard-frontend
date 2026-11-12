@@ -6,6 +6,7 @@ import { formatChange, monthName, shortDate, tone } from '../master/format'
 import { useComparisons, useFetch, useInsights, usePeriod } from '../master/periodState'
 import { atLeast, monthIso, send, todayIso, useMeta } from './financeApi'
 import { Choice, Field, FinanceShell, Modal } from './FinanceParts'
+import { SkeletonPage } from '../../components/Skeleton'
 
 // ——— Cash & Debt ———
 function AccountForm({ meta, account, onClose, onSaved }) {
@@ -359,7 +360,7 @@ function ReviewMonth({ meta, month, onChanged }) {
   }
 
   if (error) return <div className="notice">{error}</div>
-  if (!review) return <p className="muted">Loading…</p>
+  if (!review) return <SkeletonPage />
   return (
     <Panel
       title={review.label}

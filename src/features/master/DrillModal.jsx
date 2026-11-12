@@ -5,6 +5,7 @@ import { formatValue, monthName, shortDate } from './format'
 import { useFetch, usePeriod } from './periodState'
 import { PlanEditor } from './PlanEditor'
 import { ReasonEditor } from './ReasonEditor'
+import { SkeletonTable } from '../../components/Skeleton'
 
 function Cell({ column, row }) {
   const value = row[column.key]
@@ -64,7 +65,7 @@ export function DrillModal({ request, onClose, onChanged }) {
           </button>
         </header>
         {error ? <div className="notice">{error}</div> : null}
-        {!data && !error ? <p className="muted drill-loading">Loading…</p> : null}
+        {!data && !error ? <SkeletonTable rows={6} columns={6} /> : null}
         {data?.note ? <p className="muted">{data.note}</p> : null}
         {data && data.rows.length === 0 && !data.note ? <p className="muted drill-loading">Nothing in this period.</p> : null}
         {data && data.rows.length ? (

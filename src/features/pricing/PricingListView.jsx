@@ -1,6 +1,7 @@
 import { money, number } from '../../lib'
 import { FilterBar } from '../dashboard/FilterBar'
 import { PricingSubmissionTable, SimplePricingTable } from './tables'
+import { SkeletonTable } from '../../components/Skeleton'
 
 export function PricingListView({ view, list, search, setSearch, filters, setFilter, filterOptions, onPage, onOpen }) {
   return (
@@ -20,7 +21,7 @@ export function PricingListView({ view, list, search, setSearch, filters, setFil
         search={search}
         setSearch={setSearch}
       />
-      {!list ? <p className="empty muted">Loading…</p> : null}
+      {!list ? <SkeletonTable /> : null}
       {list && !list.results.length ? <p className="empty muted">Nothing here yet.</p> : null}
       {view === 'submissions' && list ? (
         <PricingSubmissionTable rows={list.results} onOpen={(id) => onOpen('submissions', id)} />

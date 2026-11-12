@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { api, money, number, queryString, readJson, when } from '../../lib'
 import { AnimatedMetric } from '../dashboard/metrics'
 import { MrrActiveIcon, MrrLostIcon, MrrNetIcon, MrrNewIcon } from './icons'
+import { SkeletonTable } from '../../components/Skeleton'
 
 const EMPTY_FORM = {
   name: '',
@@ -454,7 +455,7 @@ export function MrrView() {
       </div>
 
       <div className="mrr-table-shell">
-        {loading && !data ? <p className="empty muted">Loading…</p> : null}
+        {loading && !data ? <SkeletonTable /> : null}
         {!loading && !rows.length ? <p className="empty muted">Nothing here yet. Add a client or import lock-ins.</p> : null}
 
         {rows.length ? (

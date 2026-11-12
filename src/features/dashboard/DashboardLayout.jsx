@@ -9,6 +9,7 @@ import { PricingDrawer } from '../pricing'
 import { DashboardProvider, useDashboard } from './DashboardProvider'
 import { PeriodProvider } from '../master/PeriodContext'
 import '../../styles/App.css'
+import { SkeletonApp } from '../../components/Skeleton'
 
 const MASTER_SUBTITLES = {
   overview: 'Is the company healthy, and what changed? Click any number to see why.',
@@ -69,7 +70,7 @@ function DashboardShell() {
   const { user, loggingOut, logout, showChangePassword, setShowChangePassword } = useAuth()
 
   if (!ready) {
-    return <div className="content muted">Loading…</div>
+    return <SkeletonApp />
   }
 
   const layoutClass =

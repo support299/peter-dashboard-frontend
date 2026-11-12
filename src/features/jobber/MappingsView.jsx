@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api, readJson } from '../../lib'
+import { SkeletonTable } from '../../components/Skeleton'
 
 export function MappingTable({ title, rows, fields, divisions, onSave, onDelete }) {
   const [draft, setDraft] = useState(() =>
@@ -129,7 +130,7 @@ export function MappingsView() {
     await reload()
   }
 
-  if (!serviceRows || !divisionRows) return <p className="empty muted">Loading…</p>
+  if (!serviceRows || !divisionRows) return <SkeletonTable />
 
   return (
     <div className="jobber-board">

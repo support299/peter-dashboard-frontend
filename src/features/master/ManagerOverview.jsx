@@ -9,6 +9,7 @@ import { HistoryChart } from './ManagerCharts'
 import { Panel } from './MasterPages'
 import { useFetch, usePeriod } from './periodState'
 import { useMasterPage } from './useMasterPage'
+import { SkeletonCharts } from '../../components/Skeleton'
 
 /*
  * Manager Overview for Cassidy, laid out like Peter's mockup (Nov 2026): six big numbers, a Needs
@@ -479,7 +480,7 @@ function ManagerHistory() {
   return (
     <Panel title="Performance history" subtitle={`The last 12 completed ${grain === 'week' ? 'weeks (Sunday to Saturday)' : 'months'}. Hover a bar or point for the exact value.`} actions={toggle}>
       {error ? <div className="notice">{error}</div> : null}
-      {!data && !error ? <p className="muted">Loading…</p> : null}
+      {!data && !error ? <SkeletonCharts /> : null}
       {data ? (
         <div className="mgr-charts">
           {CHARTS.map((config) => {

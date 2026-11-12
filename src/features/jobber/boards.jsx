@@ -1,9 +1,10 @@
 import { AreaChart, JOBBER_COLORS, RankBars, SegmentedBar } from '../../components/charts'
 import { money, number, when } from '../../lib'
 import { BoardKpiStrip } from '../dashboard/BoardKpiStrip'
+import { SkeletonPage } from '../../components/Skeleton'
 
 export function OneOffBoard({ dash, onKpi }) {
-  if (!dash) return <p className="empty muted">Loading…</p>
+  if (!dash) return <SkeletonPage />
   return (
     <div className="jobber-board">
       <BoardKpiStrip kpis={dash.kpis || []} onKpi={onKpi} />
@@ -60,7 +61,7 @@ export function OneOffBoard({ dash, onKpi }) {
 }
 
 export function CancellationsBoard({ dash, onKpi }) {
-  if (!dash) return <p className="empty muted">Loading…</p>
+  if (!dash) return <SkeletonPage />
   return (
     <div className="jobber-board">
       <BoardKpiStrip kpis={dash.kpis || []} onKpi={onKpi} />
@@ -141,7 +142,7 @@ export function CancellationsBoard({ dash, onKpi }) {
 }
 
 export function CxBoard({ dash }) {
-  if (!dash) return <p className="empty muted">Loading…</p>
+  if (!dash) return <SkeletonPage />
   return (
     <div className="jobber-board">
       <BoardKpiStrip kpis={dash.kpis || []} />

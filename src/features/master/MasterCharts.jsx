@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { queryString } from '../../lib'
 import { formatValue } from './format'
 import { useFetch, usePeriod } from './periodState'
+import { SkeletonChart } from '../../components/Skeleton'
 
 const W = 720
 const H = 240
@@ -112,7 +113,7 @@ export function TrendPanel({ title = 'Trend', metrics, initial }) {
       {error ? <div className="notice">{error}</div> : null}
       {data && !data.available ? <p className="muted empty">{data.note || 'Not available yet.'}</p> : null}
       {data?.available ? <TrendChart points={data.points} kind={data.kind} /> : null}
-      {!data && !error ? <p className="muted empty">Loading…</p> : null}
+      {!data && !error ? <SkeletonChart /> : null}
     </article>
   )
 }
@@ -214,7 +215,7 @@ export function ProfitComparePanel() {
           <CompareChart series={series} />
         </>
       ) : null}
-      {!payload && !error ? <p className="muted empty">Loading…</p> : null}
+      {!payload && !error ? <SkeletonChart /> : null}
     </article>
   )
 }
