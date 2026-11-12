@@ -225,7 +225,7 @@ function Access({ meta }) {
         </table>
       </div>
       <p className="muted tiny-text">
-        New logins are created by Saasyway in the Django admin. A changed role applies the next time that person loads the page.
+        Add people, and change what they can see, on Master → Users. A changed role applies the next time that person loads the page.
       </p>
     </Panel>
   )

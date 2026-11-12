@@ -208,9 +208,9 @@ function TimeOffList({ rows, empty }) {
 
 function Staffing({ staff }) {
   const pending = staff?.pending_time_off || []
-  // The roster lives in the Internal App, which someone limited to this page can't open.
+  // The roster lives in the Internal App: only linked for people who may open it.
   const { user } = useAuth()
-  const limited = Array.isArray(user?.pages)
+  const limited = Array.isArray(user?.pages) && !user.pages.includes('internal')
   const Workforce = limited ? 'div' : Link
   return (
     <Panel

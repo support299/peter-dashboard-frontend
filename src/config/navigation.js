@@ -67,6 +67,7 @@ export const MASTER_NAV = [
   { id: 'quality', label: 'Quality', icon: 'cx' },
   { id: 'alerts', label: 'Alerts', icon: 'lockins' },
   { id: 'rules', label: 'Revenue rules', icon: 'mappings', staff: true },
+  { id: 'users', label: 'Users', icon: 'clients', admin: true },
 ]
 
 /** `min`: lowest Financials role that sees the page (entry < full < admin). */

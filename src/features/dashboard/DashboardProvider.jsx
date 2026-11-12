@@ -44,15 +44,37 @@ export function DashboardProvider({ children }) {
   const view = segments[1] || 'overview'
   const { user } = useAuth()
   const financeRole = user?.finance_role || ''
-  // Users limited to some pages (Peter, Nov 2026: Cassidy sees the Manager overview only). The API enforces it too.
+  // Users limited to some pages (Peter, Nov 2026: chosen on the Users page; Cassidy = Manager overview).
+  // "master:<page>" for Master pages, or a whole section ("jobber", "internal", "pricing"). The API enforces it too.
   const limitedPages = Array.isArray(user?.pages) ? user.pages : null
   const limitedMaster = limitedPages ? new Set(limitedPages.filter((page) => page.startsWith('master:')).map((page) => page.slice(7))) : null
-  const limitedHome = limitedMaster?.size ? [...limitedMaster][0] : 'manager'
-  const viewValid = limitedMaster
-    ? source === 'master' && limitedMaster.has(view)
-    : source === 'financials'
-      ? financialsNav(financeRole).some((item) => item.id === view)
-      : VIEWS_BY_SOURCE[source]?.has(view)
+  const limitedSections = limitedPages ? new Set(limitedPages.filter((page) => !page.includes(':'))) : null
+  const sourceAllowed = (src) =>
+    !limitedPages || (src === 'master' ? limitedMaster.size > 0 : src === 'financials' ? Boolean(financeRole) : limitedSections.has(src))
+  const firstSection = limitedSections ? ['jobber', 'internal', 'pricing'].find((src) => limitedSections.has(src)) : null
+  const limitedHome = !limitedPages
+    ? null
+    : limitedMaster.size
+      ? dashboardPath('master', MASTER_NAV.find((item) => limitedMaster.has(item.id))?.id || [...limitedMaster][0])
+      : firstSection
+        ? dashboardPath(firstSection)
+        : financeRole
+          ? dashboardPath('financials', financialsHome(financeRole))
+          : null
+  // Plain values for the effects below (a helper function there would stop React from caching them).
+  const allowedKey = ['master', 'financials', 'jobber', 'internal', 'pricing'].filter(sourceAllowed).join(',')
+  const allowedSources = useMemo(() => allowedKey.split(',').filter(Boolean), [allowedKey])
+  const sourceOk = sourceAllowed(source)
+  const internalOk = sourceAllowed('internal')
+  const pricingOk = sourceAllowed('pricing')
+  const viewValid =
+    sourceOk &&
+    !(source === 'master' && view === 'users' && !user?.is_superuser) && // the Users page is for admins only
+    (source === 'master' && limitedMaster
+      ? limitedMaster.has(view)
+      : source === 'financials'
+        ? financialsNav(financeRole).some((item) => item.id === view)
+        : VIEWS_BY_SOURCE[source]?.has(view))
 
   const [jobber, setJobber] = useState(null)
   const [internal, setInternal] = useState(null)
@@ -207,8 +229,12 @@ export function DashboardProvider({ children }) {
     let cancelled = false
     async function boot() {
       try {
-        // A limited user only needs Jobber's "Updated …" line; the other statuses would be refused.
-        await Promise.all(limitedPages ? [loadJobberStatus()] : [loadJobberStatus(), loadInternalStatus(), loadPricingStatus()])
+        // A limited user only loads the statuses of sections they may open; the others would be refused.
+        await Promise.all([
+          loadJobberStatus(),
+          ...(internalOk ? [loadInternalStatus()] : []),
+          ...(pricingOk ? [loadPricingStatus()] : []),
+        ])
       } catch (err) {
         if (!cancelled) setError(err.message)
       }
@@ -233,7 +259,7 @@ export function DashboardProvider({ children }) {
       setQuery('')
       setFilterOptions(null)
       try {
-        if (source === 'master' || source === 'financials' || limitedPages) {
+        if (source === 'master' || source === 'financials' || !sourceOk) {
           await loadJobberStatus()
         } else if (source === 'jobber') {
           const state = await loadJobberStatus()
@@ -303,14 +329,14 @@ export function DashboardProvider({ children }) {
   }, [search])
 
   useEffect(() => {
-    if (limitedPages || source !== 'jobber' || !connected || view !== 'overview') return
+    if (!sourceOk || source !== 'jobber' || !connected || view !== 'overview') return
     loadJobberDash(filters).catch((err) => setError(err.message))
   }, [source, connected, view, filters.division])
 
   useEffect(() => {
     let cancelled = false
     if (view === 'overview' || source === 'master' || source === 'financials') return undefined
-    if (limitedPages) return undefined // only Master pages for them; this page is about to redirect
+    if (!sourceOk) return undefined // not theirs: this page is about to redirect
     if (source === 'jobber' && !connected) return undefined
 
     // View just changed: wait for the filter-reset effect's next render.
@@ -499,7 +525,9 @@ export function DashboardProvider({ children }) {
 
   const nav =
     source === 'master'
-      ? MASTER_NAV.filter((item) => (!item.staff || user?.is_staff) && (!limitedMaster || limitedMaster.has(item.id)))
+      ? MASTER_NAV.filter(
+          (item) => (!item.staff || user?.is_staff) && (!item.admin || user?.is_superuser) && (!limitedMaster || limitedMaster.has(item.id)),
+        )
       : source === 'financials'
         ? financialsNav(financeRole)
         : source === 'jobber'
@@ -530,6 +558,7 @@ export function DashboardProvider({ children }) {
       view,
       financeRole,
       limited: Boolean(limitedPages),
+      allowedSources,
       jobber,
       internal,
       pricing,
@@ -571,6 +600,7 @@ export function DashboardProvider({ children }) {
       view,
       financeRole,
       limitedPages,
+      allowedSources,
       jobber,
       internal,
       pricing,
@@ -600,7 +630,7 @@ export function DashboardProvider({ children }) {
     ],
   )
 
-  if (limitedMaster && !limitedMaster.size) {
+  if (limitedPages && !limitedHome) {
     // Limited, but to no page this app knows (e.g. a typo in their access): say so instead of redirecting forever.
     return (
       <main className="content">
@@ -608,8 +638,8 @@ export function DashboardProvider({ children }) {
       </main>
     )
   }
-  if (limitedMaster && !viewValid) {
-    return <Navigate to={dashboardPath('master', limitedHome)} replace />
+  if (limitedPages && !viewValid) {
+    return <Navigate to={limitedHome} replace />
   }
   if (source === 'financials' && financeRole && !viewValid) {
     return <Navigate to={dashboardPath('financials', financialsHome(financeRole))} replace />

@@ -23,6 +23,7 @@ const MASTER_SUBTITLES = {
   quality: 'Touch-ups, feedback, complaints and reviews.',
   alerts: 'Set limits on any number. Crossed limits are flagged on the cards and the CEO view.',
   rules: 'How Jobber line items are sorted into divisions and revenue types.',
+  users: 'Add people and choose what each one can see.',
 }
 
 const FINANCIALS_SUBTITLES = {
@@ -44,6 +45,7 @@ function DashboardShell() {
     view,
     financeRole,
     limited,
+    allowedSources,
     jobber,
     filters,
     filterOptions,
@@ -103,8 +105,12 @@ function DashboardShell() {
           </div>
         </div>
 
-        {/* Someone limited to the Manager overview has no other section to switch to. */}
-        {limited ? <span /> : <SourceToggle source={source} onChange={switchSource} showFinancials={Boolean(financeRole)} />}
+        {/* Limited users see only the sections they may open; with just one there's nothing to switch to. */}
+        {limited && allowedSources.length < 2 ? (
+          <span />
+        ) : (
+          <SourceToggle source={source} onChange={switchSource} showFinancials={Boolean(financeRole)} allowed={limited ? allowedSources : undefined} />
+        )}
 
         <div className="topbar-actions">
           <span className="hint">
@@ -154,7 +160,7 @@ function DashboardShell() {
 
             <section className={`hero ${source !== 'jobber' ? 'hero-internal' : ''}`} hidden={tv}>
               <div>
-                {((view !== 'overview' && source !== 'financials') || detail) && !limited ? (
+                {((view !== 'overview' && source !== 'financials') || detail) && !(limited && source === 'master' && !detail) ? (
                   <button className="back" type="button" onClick={goBack}>
                     ← Back
                   </button>
