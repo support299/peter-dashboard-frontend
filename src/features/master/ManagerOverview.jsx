@@ -95,7 +95,16 @@ function Headline({ cards, onDrill }) {
   )
 }
 
-function AttentionStrip({ attention, staff, onDrill: openDrill }) {
+const hrs = (value) => `${Number(value || 0).toFixed(1).replace(/\.0$/, '')} h`
+const dayLabel = (iso) => {
+  const [y, m, d] = String(iso).split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' })
+}
+const shortDay = (iso) => dayLabel(iso).replace(/^[^,]+, /, '')
+const scrollToCapacity = () => document.getElementById('capacity')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+function AttentionStrip({ attention, staff, capacity, onDrill: openDrill }) {
+  const gaps = capacity?.gap_days || 0
   const rebook = attention?.visits_to_rebook || 0
   const confirm = attention?.first_visits_to_confirm || 0
   const overdue = attention?.overdue_complaints || 0
@@ -117,6 +126,11 @@ function AttentionStrip({ attention, staff, onDrill: openDrill }) {
       <a className="mgr-attention-item" href={staff?.hub_time_off_url} target="_blank" rel="noreferrer">
         <b className={pending ? 'bad' : ''}>{number(pending)}</b> time-off {plural(pending, 'request')} to review <span aria-hidden="true">↗</span>
       </a>
+      {capacity && !capacity.division_view ? (
+        <button type="button" className="mgr-attention-item" disabled={!gaps} onClick={scrollToCapacity} title="Days in the next 4 weeks with more hours booked than available">
+          <b className={gaps ? 'bad' : ''}>{number(gaps)}</b> coverage {plural(gaps, 'gap')} <span aria-hidden="true">›</span>
+        </button>
+      ) : null}
       <span className="mgr-attention-note muted">As of today</span>
     </div>
   )
@@ -173,6 +187,164 @@ function RevenueTarget({ target, onDrill }) {
   )
 }
 
+function DayTile({ iso, day, onOpen }) {
+  const weekday = dayLabel(iso).split(',')[0]
+  if (!day) {
+    return (
+      <div className="cap-day past">
+        <span className="cap-day-name">
+          {weekday} <small>{shortDay(iso)}</small>
+        </span>
+        <strong>Past</strong>
+      </div>
+    )
+  }
+  const noWork = day.available == null && !Number(day.booked)
+  const short = Number(day.shortfall)
+  const state = noWork ? 'off' : day.available == null ? 'unconfirmed' : short ? 'short' : 'open'
+  const headline = noWork
+    ? '—'
+    : day.available == null
+      ? 'Unconfirmed'
+      : day.bookable == null
+        ? `${hrs(day.booked)} booked`
+        : short
+          ? `${hrs(short)} short`
+          : hrs(day.bookable)
+  return (
+    <button type="button" className={`cap-day ${state}`} onClick={() => onOpen(day)} title="See the cleaners and visits behind this number">
+      <span className="cap-day-name">
+        {weekday} <small>{shortDay(iso)}</small>
+      </span>
+      <strong>{headline}</strong>
+      {noWork ? (
+        <small className="muted">Nothing scheduled</small>
+      ) : (
+        <>
+          <small className="muted">
+            {day.available != null ? `${Number(day.booked)} / ${hrs(day.available)}` : hrs(day.booked)} booked
+          </small>
+          {day.cleaners?.length ? (
+            <small className="muted">
+              {day.cleaners.length} cleaners{day.per_cleaner != null ? ` · ${day.per_cleaner} h each` : ''}
+            </small>
+          ) : null}
+        </>
+      )}
+      {day.on_leave?.length ? <small className="cap-leave">Off (approved): {day.on_leave.join(', ')}</small> : null}
+      {day.if_approved ? (
+        <small className="cap-if">
+          If {day.pending_leave.join(', ')}'s time off is approved:{' '}
+          {Number(day.if_approved.shortfall) ? `${hrs(day.if_approved.shortfall)} short` : `${hrs(day.if_approved.bookable)} bookable`}
+        </small>
+      ) : null}
+      {day.review?.length ? <small className="cap-check">{day.review.length} with unclear hours</small> : null}
+    </button>
+  )
+}
+
+function Capacity({ capacity, onDrill }) {
+  const [weekIndex, setWeekIndex] = useState(0)
+  if (!capacity) return null
+  const index = Math.min(weekIndex, capacity.weeks.length - 1)
+  const week = capacity.weeks[index]
+  const byDate = Object.fromEntries(week.days.map((d) => [d.date, d]))
+  const [y, m, d] = String(week.start).split('-').map(Number)
+  const dates = Array.from({ length: 7 }, (_, i) => {
+    const day = new Date(y, m - 1, d + i)
+    return `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`
+  })
+  const labels = capacity.weeks.map((w) => shortDay(w.start))
+  const t = week.totals
+  const weekPicker = (
+    <div className="seg">
+      {capacity.weeks.map((w, i) => (
+        <button key={w.start} type="button" className={i === index ? 'active' : ''} onClick={() => setWeekIndex(i)}>
+          {labels[i]}
+        </button>
+      ))}
+    </div>
+  )
+  return (
+    <section id="capacity" className="master-panel cap-panel">
+      <header className="master-panel-head">
+        <div>
+          <h3>Capacity · next 4 weeks</h3>
+          <p className="muted">
+            Booked = cleaner-hours written in each visit's instructions. Available = cleaners on the day's “Available Cleaners” task × {Number(capacity.hours_per_cleaner)} h.
+            Bookable = available − booked; more booked than available shows as a red shortfall. Always the next 4 weeks; this week counts from today.
+          </p>
+        </div>
+      </header>
+      {capacity.review_staffing ? (
+        <div className="cap-banner">
+          <WarnIcon /> <b>Review staffing:</b> shortages in 3 weeks in a row. Worth raising with Peter.
+        </div>
+      ) : null}
+      {capacity.division_view ? (
+        <p className="notice">Available hours are for the whole company, so bookable hours and shortfalls only show with “All divisions”. Booked hours here are for the chosen division.</p>
+      ) : null}
+      <div className="cap-grid">
+        <div className="mgr-chart">
+          <h4>Booked vs. available hours</h4>
+          <HistoryChart
+            title="Booked vs. available hours, next 4 weeks"
+            labels={labels}
+            titles={capacity.weeks.map((w) => `Week of ${shortDay(w.start)}`)}
+            kind="count"
+            series={[
+              { key: 'booked', label: 'Booked', type: 'bar', color: '#1e3a8a', points: capacity.weeks.map((w) => w.totals.booked) },
+              { key: 'available', label: 'Available', type: 'bar', color: C.green, points: capacity.weeks.map((w) => w.totals.available) },
+            ]}
+          />
+          <div className="cap-week-sums">
+            {capacity.weeks.map((w, i) => (
+              <button key={w.start} type="button" className={i === index ? 'active' : ''} onClick={() => setWeekIndex(i)}>
+                <span>{labels[i]}</span>
+                <b className={Number(w.totals.shortfall) ? 'bad-text' : 'good-text'}>
+                  {w.totals.bookable == null ? '—' : Number(w.totals.shortfall) ? `${hrs(w.totals.shortfall)} short` : `${hrs(w.totals.bookable)} open`}
+                </b>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="cap-days-wrap">
+          <div className="cap-days-head">
+            <h4>Bookable hours by day</h4>
+            {weekPicker}
+          </div>
+          <div className="cap-days">
+            {dates.map((iso) => (
+              <DayTile key={iso} iso={iso} day={byDate[iso]} onOpen={(day) => onDrill('capacity_day', dayLabel(day.date), { category: day.date })} />
+            ))}
+          </div>
+          <p className="cap-total">
+            Week of {labels[index]}: <b className="good-text">{t.bookable == null ? '—' : hrs(t.bookable)} bookable</b>
+            {Number(t.shortfall) ? (
+              <>
+                {' · '}
+                <b className="bad-text">{hrs(t.shortfall)} short</b>
+              </>
+            ) : null}
+            <small className="muted">Openings and shortages are added up separately: one day's openings don't cover another day's shortage.</small>
+          </p>
+          <p className="muted tiny-text">
+            Click a day to see its cleaners and visits. Approved time off takes that person off the day; pending requests show as “if approved”.
+            {capacity.to_review ? (
+              <>
+                {' '}
+                <button type="button" className="link-button" onClick={() => onDrill('capacity_review', 'Visits to check: hours')}>
+                  {number(capacity.to_review)} {plural(capacity.to_review, 'visit has', 'visits have')} unclear hours ›
+                </button>
+              </>
+            ) : null}
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function TimeOffList({ rows, empty }) {
   if (!rows.length) return <p className="muted tiny-text">{empty}</p>
   return (
@@ -206,7 +378,45 @@ function TimeOffList({ rows, empty }) {
   )
 }
 
-function Staffing({ staff }) {
+function CapacityWeeks({ capacity }) {
+  if (!capacity) return null
+  return (
+    <div className="drill-table-wrap">
+      <table className="drill-table cap-table">
+        <thead>
+          <tr>
+            <th>Week of</th>
+            <th>Booked</th>
+            <th>Available</th>
+            <th>Bookable</th>
+            <th>Short</th>
+          </tr>
+        </thead>
+        <tbody>
+          {capacity.weeks.map((week) => {
+            const t = week.totals
+            const ifShort = t.if_approved && Number(t.if_approved.shortfall) > Number(t.shortfall || 0)
+            return (
+              <tr key={week.start}>
+                <td>{shortDay(week.start)}</td>
+                <td>{hrs(t.booked)}</td>
+                <td>{t.available == null ? <span className="muted">Unconfirmed</span> : hrs(t.available)}</td>
+                <td className="good-text">{t.bookable == null ? '—' : hrs(t.bookable)}</td>
+                <td className={Number(t.shortfall) ? 'bad-text' : 'muted'}>
+                  {Number(t.shortfall) ? hrs(t.shortfall) : '—'}
+                  {ifShort ? <small className="cap-if">{hrs(t.if_approved.shortfall)} if time off is approved</small> : null}
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function Staffing({ staff, capacity }) {
+  const gap = capacity?.next_gap
   const pending = staff?.pending_time_off || []
   // The roster lives in the Internal App: only linked for people who may open it.
   const { user } = useAuth()
@@ -255,15 +465,26 @@ function Staffing({ staff }) {
             ↗
           </span>
         </a>
-        <div className="mgr-stat pending">
-          <span className="mgr-stat-icon warn">
+        <button type="button" className={`mgr-stat${gap ? ' gap' : ''}`} onClick={scrollToCapacity} disabled={!capacity}>
+          <span className={`mgr-stat-icon${gap ? ' warn' : ''}`}>
             <WarnIcon />
           </span>
           <span>
             <span className="mgr-stat-label">Next coverage gap</span>
-            <strong className="muted">Comes with the 4-week capacity forecast</strong>
+            {capacity?.division_view ? (
+              <strong className="muted">Shown with All divisions</strong>
+            ) : gap ? (
+              <strong className="bad-text">
+                {hrs(gap.hours)} short · {dayLabel(gap.date)}
+              </strong>
+            ) : (
+              <strong className="good-text">None in the next 4 weeks</strong>
+            )}
           </span>
-        </div>
+          <span className="mgr-chev" aria-hidden="true">
+            ›
+          </span>
+        </button>
       </div>
       <div className="mgr-staff-grid">
         <div>
@@ -280,12 +501,7 @@ function Staffing({ staff }) {
         </div>
         <div>
           <h4>Four-week capacity</h4>
-          <div className="mgr-soon">
-            <b>Booked, available and bookable hours by week</b>
-            <p className="muted">
-              Booked hours are read from each visit's instructions and available hours from the day's "Available Cleaners" task in Jobber. Shown here once a real week has been checked with Peter.
-            </p>
-          </div>
+          <CapacityWeeks capacity={capacity} />
         </div>
       </div>
     </Panel>
@@ -684,10 +900,11 @@ export function ManagerOverview() {
       {tv ? <TvHeader period={data?.period?.label} loadedAt={loadedAt} onRefresh={reload} onExit={exit} /> : null}
       <Panel title="Business overview" subtitle={`${data?.period?.label || ''}. Click a number to see the records behind it.`} actions={quick}>
         <Headline cards={data?.headline} onDrill={openDrill} />
-        <AttentionStrip attention={data?.attention} staff={staff} onDrill={openDrill} />
+        <AttentionStrip attention={data?.attention} staff={staff} capacity={data?.capacity} onDrill={openDrill} />
       </Panel>
       <RevenueTarget target={data?.target} onDrill={openDrill} />
-      <Staffing staff={staff} />
+      <Staffing staff={staff} capacity={data?.capacity} />
+      <Capacity capacity={data?.capacity} onDrill={openDrill} />
       {data ? <Lists data={data} onDrill={openDrill} /> : null}
       <ManagerHistory />
     </>,

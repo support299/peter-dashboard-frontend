@@ -2060,3 +2060,224 @@ a.mgr-stat:hover {
 .tv-mode .mgr-list h4 {
   font-size: 16px;
 }
+
+
+/* ——— Capacity · next 4 weeks (Manager overview) ——— */
+.good-text {
+  color: var(--good);
+}
+
+.bad-text {
+  color: var(--bad);
+}
+
+button.mgr-stat {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+button.mgr-stat:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+}
+
+.mgr-stat.gap {
+  border-color: #fecdd3;
+  background: #fff7f8;
+}
+
+.cap-table td,
+.cap-table th {
+  white-space: nowrap;
+}
+
+.cap-if {
+  display: block;
+  color: #b45309;
+  font-size: 12px;
+}
+
+.cap-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid #fecdd3;
+  border-radius: 12px;
+  background: #fff1f2;
+  color: #9f1239;
+}
+
+.cap-banner svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+
+.cap-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: 16px;
+}
+
+.cap-week-sums {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.cap-week-sums button {
+  display: grid;
+  gap: 2px;
+  padding: 6px 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: white;
+  font: inherit;
+  font-size: 12px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.cap-week-sums button.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) inset;
+}
+
+.cap-days-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.cap-days-head h4 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.cap-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cap-day {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+}
+
+button.cap-day {
+  cursor: pointer;
+}
+
+button.cap-day:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+}
+
+.cap-day-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cap-day-name small {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.cap-day strong {
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.cap-day small {
+  font-size: 11.5px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.cap-day.open strong {
+  color: var(--good);
+}
+
+.cap-day.short {
+  border-color: #fecdd3;
+  background: #fff7f8;
+}
+
+.cap-day.short strong {
+  color: var(--bad);
+}
+
+.cap-day.unconfirmed strong {
+  font-size: 15px;
+  color: #b45309;
+}
+
+.cap-day.off,
+.cap-day.past {
+  background: #f8fafc;
+}
+
+.cap-day.off strong,
+.cap-day.past strong {
+  color: var(--muted);
+}
+
+.cap-leave {
+  color: #9f1239;
+}
+
+.cap-check {
+  color: #b45309;
+}
+
+.cap-total {
+  margin: 12px 0 4px;
+}
+
+.cap-total small {
+  display: block;
+  margin-top: 2px;
+}
+
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (max-width: 1080px) {
+  .cap-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .cap-days {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cap-week-sums {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
