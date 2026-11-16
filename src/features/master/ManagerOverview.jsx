@@ -659,7 +659,7 @@ const CHARTS = [
     kind: 'count',
     stacked: true,
     series: [
-      { key: 'cancelled_visits', label: 'Cancelled visits', type: 'bar', color: C.red },
+      { key: 'absence_days', label: 'Absence days', type: 'bar', color: C.red },
       { key: 'late_arrivals', label: 'Late arrivals', type: 'bar', color: C.orange },
     ],
   },
