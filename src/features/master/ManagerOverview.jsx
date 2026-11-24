@@ -91,6 +91,8 @@ function Headline({ cards, onDrill }) {
         onDrill={onDrill}
       />
       <HeadlineCard kpi={k.invoiced_revenue} onDrill={onDrill} />
+      <HeadlineCard kpi={k.new_one_off_jobs} label="Jobs created" drillTitle="Jobs created" onDrill={onDrill} />
+      <HeadlineCard kpi={k.new_one_off_revenue} label="New revenue added" drillTitle="Jobs created" onDrill={onDrill} />
     </div>
   )
 }
@@ -570,8 +572,6 @@ function Lists({ data, onDrill }) {
         onDrill={onDrill}
         rows={withKpi(
           [
-            ['new_one_off_jobs', labelled('Jobs created')],
-            ['new_one_off_revenue', labelled('New revenue added')],
             ['avg_booking_price', labelled('Avg. booking')],
             ['open_leads', labelled('Open leads')],
           ],

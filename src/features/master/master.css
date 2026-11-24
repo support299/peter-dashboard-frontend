@@ -1367,7 +1367,8 @@
 /* ——— Manager Overview (Peter's mockup, Nov 2026) ——— */
 .mgr-headline {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Eight cards: two even rows of four (two columns on smaller screens). */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -1804,6 +1805,13 @@ a.mgr-stat:hover {
 
 .manager-progress.good i {
   background: #047857;
+}
+
+/* Four cards a row get tight next to the sidebar on smaller laptops: two rows of two pairs instead. */
+@media (max-width: 1240px) {
+  .mgr-headline {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 1080px) {
