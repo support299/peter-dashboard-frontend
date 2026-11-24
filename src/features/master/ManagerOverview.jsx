@@ -565,7 +565,19 @@ function Lists({ data, onDrill }) {
   }
   return (
     <div className="mgr-lists">
-      <MiniList title="Sales" onDrill={onDrill} rows={withKpi([['avg_booking_price', labelled('Avg. booking')], ['open_leads', labelled('Open leads')]], sales)} />
+      <MiniList
+        title="Sales"
+        onDrill={onDrill}
+        rows={withKpi(
+          [
+            ['new_one_off_jobs', labelled('Jobs created')],
+            ['new_one_off_revenue', labelled('New revenue added')],
+            ['avg_booking_price', labelled('Avg. booking')],
+            ['open_leads', labelled('Open leads')],
+          ],
+          sales,
+        )}
+      />
       <MiniList
         title="Recurring revenue"
         onDrill={onDrill}
