@@ -111,6 +111,7 @@ function AttentionStrip({ attention, staff, capacity, onDrill: openDrill }) {
   const confirm = attention?.first_visits_to_confirm || 0
   const overdue = attention?.overdue_complaints || 0
   const pending = staff?.pending_time_off?.length || 0
+  const fix = capacity?.jobs_to_fix || 0
   return (
     <div className="mgr-attention" role="region" aria-label="Needs attention">
       <span className="mgr-attention-title">
@@ -131,6 +132,17 @@ function AttentionStrip({ attention, staff, capacity, onDrill: openDrill }) {
       {capacity && !capacity.division_view ? (
         <button type="button" className="mgr-attention-item" disabled={!gaps} onClick={scrollToCapacity} title="Days in the next 4 weeks with more hours booked than available">
           <b className={gaps ? 'bad' : ''}>{number(gaps)}</b> coverage {plural(gaps, 'gap')} <span aria-hidden="true">›</span>
+        </button>
+      ) : null}
+      {capacity ? (
+        <button
+          type="button"
+          className="mgr-attention-item"
+          disabled={!fix}
+          onClick={() => openDrill('capacity_review', 'Hours to fix in Jobber')}
+          title="Jobs with visits in the next 4 weeks that have no hours, or several different numbers, in their instructions"
+        >
+          <b className={fix ? 'bad' : ''}>{number(fix)}</b> {plural(fix, 'job')} missing hours <span aria-hidden="true">›</span>
         </button>
       ) : null}
       <span className="mgr-attention-note muted">As of today</span>
@@ -240,7 +252,7 @@ function DayTile({ iso, day, onOpen }) {
           {Number(day.if_approved.shortfall) ? `${hrs(day.if_approved.shortfall)} short` : `${hrs(day.if_approved.bookable)} bookable`}
         </small>
       ) : null}
-      {day.review?.length ? <small className="cap-check">{day.review.length} with unclear hours</small> : null}
+      {day.review?.length ? <small className="cap-check">{day.review.length} with no clear hours</small> : null}
     </button>
   )
 }
@@ -335,8 +347,8 @@ function Capacity({ capacity, onDrill }) {
             {capacity.to_review ? (
               <>
                 {' '}
-                <button type="button" className="link-button" onClick={() => onDrill('capacity_review', 'Visits to check: hours')}>
-                  {number(capacity.to_review)} {plural(capacity.to_review, 'visit has', 'visits have')} unclear hours ›
+                <button type="button" className="link-button" onClick={() => onDrill('capacity_review', 'Hours to fix in Jobber')}>
+                  {number(capacity.to_review)} {plural(capacity.to_review, 'visit has', 'visits have')} no clear hours ({number(capacity.jobs_to_fix)} {plural(capacity.jobs_to_fix, 'job')} to fix) ›
                 </button>
               </>
             ) : null}
