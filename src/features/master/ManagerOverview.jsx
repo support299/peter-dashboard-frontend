@@ -110,6 +110,7 @@ function AttentionStrip({ attention, staff, capacity, onDrill: openDrill }) {
   const rebook = attention?.visits_to_rebook || 0
   const confirm = attention?.first_visits_to_confirm || 0
   const overdue = attention?.overdue_complaints || 0
+  const quote = attention?.needs_recurring_quote || 0
   const pending = staff?.pending_time_off?.length || 0
   const fix = capacity?.jobs_to_fix || 0
   return (
@@ -122,6 +123,15 @@ function AttentionStrip({ attention, staff, capacity, onDrill: openDrill }) {
       </button>
       <button type="button" className="mgr-attention-item" disabled={!confirm} onClick={() => openDrill('first_visits_to_confirm', 'First visits to confirm')} title="Approved bookings with no visit scheduled in Jobber yet">
         <b className={confirm ? 'bad' : ''}>{number(confirm)}</b> first {plural(confirm, 'visit')} to confirm <span aria-hidden="true">›</span>
+      </button>
+      <button
+        type="button"
+        className="mgr-attention-item"
+        disabled={!quote}
+        onClick={() => openDrill('needs_recurring_quote', 'Needs recurring quote')}
+        title="First cleans completed more than 24 hours ago with no Recurring Service quote sent in Jobber"
+      >
+        <b className={quote ? 'bad' : ''}>{number(quote)}</b> {plural(quote, 'client')} {plural(quote, 'needs', 'need')} a recurring quote <span aria-hidden="true">›</span>
       </button>
       <button type="button" className="mgr-attention-item" disabled={!overdue} onClick={() => openDrill('complaints_overdue', 'Overdue complaints')} title="Open for more than 1 business day">
         <b className={overdue ? 'bad' : ''}>{number(overdue)}</b> overdue {plural(overdue, 'complaint')} <span aria-hidden="true">›</span>
