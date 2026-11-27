@@ -129,7 +129,7 @@ function AttentionStrip({ attention, staff, capacity, onDrill: openDrill }) {
         className="mgr-attention-item"
         disabled={!quote}
         onClick={() => openDrill('needs_recurring_quote', 'Needs recurring quote')}
-        title="First cleans completed more than 24 hours ago with no Recurring Service quote sent in Jobber"
+        title="First and deep cleans completed more than 24 hours ago with no Recurring Service quote sent in Jobber"
       >
         <b className={quote ? 'bad' : ''}>{number(quote)}</b> {plural(quote, 'client')} {plural(quote, 'needs', 'need')} a recurring quote <span aria-hidden="true">›</span>
       </button>
